@@ -1293,6 +1293,10 @@ if (typeof enceeper.api !== 'function') {
 
 // A wrapper around the common functionality of the Enceeper App
 enceeper.app = function (email, pass, successCallback, failureCallback) {
+  // Original values to be used for caching
+  this._accountKeys = null
+  this._data = null
+  // The internal structures
   this._keys = null
   this._shares = null
   this._plan = null
@@ -1320,11 +1324,13 @@ enceeper.app.prototype = {
     self._api.signin(function (data) {
       // Store the plan
       self._plan = data.result.enceeper.plan
+      // Store the account keys
+      self._accountKeys = data.result.keys
 
       // We are OK, get the keys
       self._api.keys(function (data) {
         // Store the keys
-        self.setKeys(data, self)
+        self.setKeys(data.result, self)
 
         // Then execute the callback
         successCallback(data)
@@ -1356,7 +1362,12 @@ enceeper.app.prototype = {
     failureCallback = failureCallback || self._api._failureCallback || self._api._defaultCallback
     // -- end of block
 
-    self._api.password(oldPassword, newPassword, successCallback, function (status, errorMessage) {
+    self._api.password(oldPassword, newPassword, function (data) {
+      // First store the new account keys
+      this._accountKeys = data.result.keys
+      // Then execute the callback
+      successCallback(data)
+    }, function (status, errorMessage) {
       self._checkAndReAuth(self, status, errorMessage, successCallback, failureCallback)
     })
   },
@@ -1398,7 +1409,7 @@ enceeper.app.prototype = {
 
     self._api.keys(function (data) {
       // Store the keys
-      self.setKeys(data, self)
+      self.setKeys(data.result, self)
 
       // Then execute the callback
       successCallback(data)
@@ -1407,19 +1418,66 @@ enceeper.app.prototype = {
     })
   },
 
-  // Set the cached data
-  setCache: function (scryptSalt, keys, data) {
-    this._api._crypto = new enceeper.crypto(this._api._pass, scryptSalt)
-    this._api._crypto.restoreAccountKeys(keys)
-    this.setKeys(data)
+  // Create a cache structure
+  getForCache: function () {
+    var cache
+
+    if (this._api._crypto === null) {
+      throw new InvalidStateException('You must login in order to create a fresh cache structure.')
+    }
+
+    cache = {
+      v: 1,
+      scrypt: {
+        salt: this._api._scrypt_salt
+      },
+      accountKeys: this._accountKeys,
+      userData: this._data
+    }
+
+    return cache
+  },
+
+  // Restore the data from the cache
+  restoreCache: function (cache) {
+    if (typeof cache !== 'object') {
+      throw new InvalidArgumentException('You must provide an object to the restoreCache function.')
+    }
+    if (typeof cache.v !== 'number') {
+      throw new InvalidArgumentException('The cache version is not a number.')
+    }
+
+    if (cache.v === 1) {
+      if (typeof cache.scrypt === 'undefined' || typeof cache.scrypt.salt !== 'string') {
+        throw new InvalidArgumentException('The cache object must have a hex representation of the scrypt salt.')
+      }
+      if (typeof cache.accountKeys !== 'object') {
+        throw new InvalidArgumentException('The cache object must have a account keys object.')
+      }
+      if (typeof cache.userData !== 'object') {
+        throw new InvalidArgumentException('The cache object must contain the user data (keys and shares).')
+      }
+    } else {
+      throw new InvalidArgumentException('Unknown version number found in cache: ' + cache.v)
+    }
+
+    // Restore the scrypt salt
+    this._api._scrypt_salt = cache.scrypt.salt
+    // Initiate crypto
+    this._api._crypto = new enceeper.crypto(this._api._pass, this._api._scrypt_salt)
+    // Restore account keys
+    this._api._crypto.restoreAccountKeys(cache.accountKeys)
+    // Restore shares and keys from the cache
+    this.setKeys(cache.userData)
   },
 
   // Set the keys to create the internal structure (ie. using cache)
   setKeys: function (data, ref) {
     var self = ref || this
 
-    self._keys = data.result.keys
-    self._shares = data.result.shares
+    self._data = data
+    self._keys = data.keys
+    self._shares = data.shares
 
     self._createInternalStructure(self)
   },
@@ -1457,6 +1515,27 @@ enceeper.app.prototype = {
     }
 
     return this._keys[this._mapping['key_' + keyId]]
+  },
+
+  // Get the slot details provided the keyId and slotId
+  getSlotDetails: function (keyId, slotId) {
+    var slotIndex
+
+    if (typeof keyId !== 'number') {
+      throw new InvalidArgumentException('You must provide the keyId.')
+    }
+    if (typeof this._mapping['key_' + keyId] === 'undefined') {
+      throw new InvalidArgumentException('Could not locate the provided keyId: ' + keyId + '.')
+    }
+    if (typeof slotId !== 'number') {
+      throw new InvalidArgumentException('You must provide the slotId.')
+    }
+    slotIndex = this._findSlotIndex(this._keys[this._mapping['key_' + keyId]].slots, slotId)
+    if (slotIndex === -1) {
+      throw new InvalidArgumentException('Could not locate the provided slotId: ' + slotId + ' for keyId: ' + keyId + '.')
+    }
+
+    return this._keys[this._mapping['key_' + keyId]].slots[slotIndex]
   },
 
   // Get the key password provided the keyId

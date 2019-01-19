@@ -18,7 +18,6 @@
 //
 
 var enceeper = require('../dist/enceeper.js')
-var cachedData
 
 beforeAll(done => {
   jest.setTimeout(25000)
@@ -34,7 +33,6 @@ beforeAll(done => {
 describe('perform basic account actions', () => {
   beforeAll(done => {
     global.enc4.signin(function (data) {
-      cachedData = data
       done()
     }, function (status, errorMessage) {
       throw new Error(errorMessage || 'Not defined')
@@ -45,7 +43,7 @@ describe('perform basic account actions', () => {
     var categories, keys, keyMeta, keyValue
 
     var enc = new enceeper.app(global.enceeper.user4, global.enceeper.pass4)
-    enc.setCache(global.enc4._api._scrypt_salt, global.enc4._api._crypto.returnAccountKeys(), cachedData)
+    enc.restoreCache(global.enc4.getForCache())
 
     categories = enc.getCategories()
     keys = enc.getKeys(categories[0])

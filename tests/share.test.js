@@ -129,7 +129,7 @@ describe('perform actions under a third account', () => {
 // --
 test('retrieve account keys and test internal structure', done => {
   global.enc2.keys(function (data) {
-    var categories, keys, keyMeta, keyValue
+    var categories, keys, keyMeta, keyValue, firstSlot
 
     // Test return value
     expect(typeof data.result).toBe('object')
@@ -140,12 +140,14 @@ test('retrieve account keys and test internal structure', done => {
     keys = global.enc2.getKeys(categories[0])
     keyMeta = global.enc2.getKeyDetails(keys[0].key_id)
     keyValue = global.enc2.getPassword(keys[0].key_id)
+    firstSlot = global.enc2.getSlotDetails(keys[0].key_id, -1)
 
     // Check with the input we have provided on key creation
     expect(categories).toEqual(global.enceeper.keyMeta.c)
     expect(keyMeta).toEqual(keys[0])
     expect(keyMeta.meta).toEqual(global.enceeper.keyMeta)
     expect(keyValue).toEqual(global.enceeper.keyValue)
+    expect(firstSlot).toEqual(keys[0].slots[0])
 
     // Now check the remaining data
     expect(typeof keyMeta.key_id).toBe('number')
