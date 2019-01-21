@@ -60,7 +60,7 @@ enceeper.app.prototype = {
       // We are OK, get the keys
       self._api.keys(function (data) {
         // Store the keys
-        self.setKeys(data.result, self)
+        self._setKeys(data.result, self)
 
         // Then execute the callback
         successCallback(data)
@@ -139,7 +139,7 @@ enceeper.app.prototype = {
 
     self._api.keys(function (data) {
       // Store the keys
-      self.setKeys(data.result, self)
+      self._setKeys(data.result, self)
 
       // Then execute the callback
       successCallback(data)
@@ -198,18 +198,7 @@ enceeper.app.prototype = {
     // Restore account keys
     this._api._crypto.restoreAccountKeys(cache.accountKeys)
     // Restore shares and keys from the cache
-    this.setKeys(cache.userData)
-  },
-
-  // Set the keys to create the internal structure (ie. using cache)
-  setKeys: function (data, ref) {
-    var self = ref || this
-
-    self._data = data
-    self._keys = data.keys
-    self._shares = data.shares
-
-    self._createInternalStructure(self)
+    this._setKeys(cache.userData)
   },
 
   // Get the calculated categories
@@ -625,6 +614,17 @@ enceeper.app.prototype = {
     }, function (status, errorMessage) {
       self._checkAndReAuth(self, status, errorMessage, successCallback, failureCallback)
     })
+  },
+
+  // Set the keys to create the internal structure (ie. using cache)
+  _setKeys: function (data, ref) {
+    var self = ref || this
+
+    self._data = data
+    self._keys = data.keys
+    self._shares = data.shares
+
+    self._createInternalStructure(self)
   },
 
   _findShareIndex: function (shares, shareId) {
