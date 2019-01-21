@@ -4,7 +4,7 @@ A reference library for building Javascript applications on top of the Enceeper 
 
 ## Introduction
 
-The Enceeper app (https://github.com/enceeper/enceeper) and the Enceeper service (https://www.enceeper.com/) can be used to securely store and retrieve credentials (usernames, passwords, API keys etc). The Enceeper app can be divided into two parts:
+The [Enceeper app](https://github.com/enceeper/enceeper) and the [Enceeper service](https://www.enceeper.com/) can be used to securely store and retrieve credentials (usernames, passwords, API keys etc). The Enceeper app can be divided into two parts:
 - The User Interface (UI) that handles all user input
 - The core functionality and the utilization of the Enceeper service
 
@@ -12,8 +12,8 @@ For the later we have created this repository, to make it a seperate project for
 
 The purpose of this library is:
 * To execute the SRP6a protocol both for user registration and authentication (https://github.com/alax/jsrp)
-* Implement all cryptographic functionality by utilizing SJCL (https://github.com/bitwiseshiftleft/sjcl) and TweetNaCl (https://github.com/dchest/tweetnacl-js)
-* Handle all network communication with the Enceeper service (https://www.enceeper.com/) using ajax calls (via JQuery)
+* Implement all cryptographic functionality by utilizing [SJCL](https://github.com/bitwiseshiftleft/sjcl) and [TweetNaCl](https://github.com/dchest/tweetnacl-js)
+* Handle all network communication with the [Enceeper service](https://www.enceeper.com/) using ajax calls (via JQuery)
 * Expose a convenient and abstract API to be used by other solutions
 * Allow transparent re-authentication when the auth token expires
 
