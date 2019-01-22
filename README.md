@@ -48,19 +48,23 @@ The following example illustrates how to sign-in to a user account and then retr
 ```javascript
 const enceeper = require('enceeper-jslib')
 
-var enc = new enceeper.app('user@example.com', 'secret')
+// This user is used by our test suite
+var enc = new enceeper.app('demo2@enceeper.com', 'ShareSecret')
 
 enc.signin(function (data) {
+  var categories, keys, password
+
   console.log('OK with data')
-  console.log(data)
 
-  //enc.getCategories()
+  categories = enc.getCategories()
+  keys = enc.getKeys('Internet')
+  // Get the password of the first key
+  password = enc.getPassword(keys[0].key_id)
 
-  //enc.getKeys('Category')
-
-  //enc.getKeyDetails(<key id>)
-
-  //enc.getPassword(<key id>)
+  // Since we store previous passwords we need to access the value of the first
+  // element of the array. We should also check the version of the structure (password.v)
+  // for completeness.
+  console.log('The password: ' + password.p[0].v)
 }, function (status, errorMessage) {
   console.log('Error: [' + status + '] [' + errorMessage + ']')
 })
