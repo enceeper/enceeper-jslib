@@ -1,6 +1,6 @@
 # Enceeper JS library
 
-A reference library for building Javascript applications on top of the Enceeper service. Our own cross-platform Enceeper app is using this library.
+A reference library for building Javascript applications on top of the Enceeper service. Our cross-platform Enceeper app is using this library.
 
 ## Introduction
 
@@ -10,9 +10,9 @@ The [Enceeper app](https://github.com/enceeper/enceeper) and the [Enceeper servi
 
 For the latter, use this repository which serves as a basis project for easier integration (via npm) to other solutions.
 
-Purpose of this library is:
+Purpose of this library:
 * To execute the SRP6a protocol both for user registration and authentication (https://github.com/alax/jsrp)
-* Implement full cryptographic functionality, utilizing [SJCL](https://github.com/bitwiseshiftleft/sjcl) and [TweetNaCl](https://github.com/dchest/tweetnacl-js)
+* Implement all cryptographic functionality, utilizing [SJCL](https://github.com/bitwiseshiftleft/sjcl) and [TweetNaCl](https://github.com/dchest/tweetnacl-js)
 * Handle all network communication with the [Enceeper service](https://www.enceeper.com/) using ajax calls (via JQuery)
 * Expose a convenient and abstract API to enable integration with other solutions
 * Allow transparent re-authentication when the auth token expires
@@ -25,7 +25,7 @@ npm install enceeper-jslib --save
 
 ### Important notes
 
-The library assumes that the machine we are running is not hostile. If another hostile process can acquire a memory segment previously used by our app it could gain access to important key information. Given that JS allocates memory dymanically, even considering zeroing variables after usage by itself would be a very hard task.
+The library assumes that the machine we are running is not hostile. If another hostile process can acquire a memory segment previously used by our app it could gain access to important key information. Given that JS allocates memory dymanically, even considering zeroing variables after usage could add unnecessary complexity without accomplishing its goal.
 
 *The safest way is to use the library in your personal machine.*
 
@@ -54,13 +54,13 @@ enc.signin(function (data) {
   console.log('OK with data')
   console.log(data)
 
-  enc.getCategories()
+  //enc.getCategories()
 
-  enc.getKeys('Category')
+  //enc.getKeys('Category')
 
-  enc.getKeyDetails(<key id>)
+  //enc.getKeyDetails(<key id>)
 
-  enc.getPassword(<key id>)
+  //enc.getPassword(<key id>)
 }, function (status, errorMessage) {
   console.log('Error: [' + status + '] [' + errorMessage + ']')
 })
