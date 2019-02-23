@@ -529,19 +529,7 @@ enceeper.api.prototype = {
   },
 
   _checkValueInList: function (value, list) {
-    var found, singleValue
-
-    found = false
-    for (var index in list) {
-      singleValue = list[index]
-
-      if (value === singleValue) {
-        found = true
-        break
-      }
-    }
-
-    return found
+    return (list.indexOf(value) > -1)
   },
 
   _bundledSRP6a: function (self, srp6a, successCallback, failureCallback) {
