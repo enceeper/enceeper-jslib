@@ -208,7 +208,6 @@ enceeper.app.prototype = {
 
   // Get the keys of the provided category
   getKeys: function (category) {
-    var keys = []
 
     if (typeof category !== 'string') {
       throw new InvalidArgumentException('You must provide the category.')
@@ -217,11 +216,7 @@ enceeper.app.prototype = {
       throw new InvalidArgumentException('Could not locate the provided category: ' + category + '.')
     }
 
-    for (var i = 0; i < this._mapping['cat_' + category].length; i++) {
-      keys.push(this._keys[this._mapping['cat_' + category][i]])
-    }
-
-    return keys
+    return (this._keys[this._mapping['cat_' + category]]).slice()
   },
 
   // Get the key details provided the keyId
@@ -641,16 +636,8 @@ enceeper.app.prototype = {
   },
 
   _findSlotIndex: function (slots, slotId) {
-    var ret = -1
 
-    for (var i = 0; i < slots.length; i++) {
-      if (slots[i].slot_id === slotId) {
-        ret = i
-        break
-      }
-    }
-
-    return ret
+    return slots.indexOf(slotId) > -1 ? 1 : -1
   },
 
   _createInternalStructure: function (self) {
@@ -709,8 +696,7 @@ enceeper.app.prototype = {
     if (status === 403) {
       var args = ''
       for (var i = 0; i < self._arguments.length; i++) {
-        // if ( typeof self._arguments[i] === 'function' )
-        //    args += self._arguments[i].name + ', ';
+
         if (typeof self._arguments[i] === 'number') {
           args += self._arguments[i] + ', '
         } else if (typeof self._arguments[i] === 'string') {
