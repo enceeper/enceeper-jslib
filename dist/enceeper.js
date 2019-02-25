@@ -121,16 +121,16 @@ enceeper.network.prototype = {
     var typeUpper = null
     var jsonBody = null
     var self = this
+    var requestTypes = ['GET', 'POST', 'PUT', 'DELETE']
 
     successCallback = successCallback || this._successCallback
     failureCallback = failureCallback || this._failureCallback
 
-    // GET, POST, PUT, DELETE
     if (typeof type !== 'string') {
       throw new InvalidArgumentException('The type is required and must be a string to make HTTP calls.')
     } else {
       typeUpper = type.toUpperCase()
-      if (typeUpper !== 'GET' && typeUpper !== 'POST' && typeUpper !== 'PUT' && typeUpper !== 'DELETE') {
+      if (!requestTypes.includes(typeUpper)) {
         throw new InvalidArgumentException('The type must be one of the following: GET, POST, PUT or DELETE.')
       }
 
