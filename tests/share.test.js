@@ -155,7 +155,15 @@ test('retrieve account keys and test internal structure', done => {
     expect(keyMeta.slots.length).toBeGreaterThan(0)
     expect(keyMeta.slots[0].slot_id).toBe(-1)
 
-    done()
+    // Check search functionality
+    global.enc2.search('facebook fb', function (data) {
+      expect(data).toEqual([ keys[0] ])
+
+      global.enc2.search('facehook', function (data) {
+        expect(data).toEqual([])
+        done()
+      })
+    })
   }, function (status, errorMessage) {
     throw new Error(errorMessage || 'Not defined')
   })

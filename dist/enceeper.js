@@ -1306,6 +1306,9 @@ enceeper.app = function (email, pass, successCallback, failureCallback) {
   // The internal structure
   this._listing = null
   this._mapping = null
+  // Search helpers
+  this._searchChangeTimer = null
+  this._eventHandlingDelay = 100
   // The actual API calls
   this._api = new enceeper.api(email, pass, successCallback, failureCallback)
 }
@@ -1492,6 +1495,61 @@ enceeper.app.prototype = {
     }
 
     return keys
+  },
+
+  // Get the keys of the provided keywords
+  search: function (keywords, callback) {
+    var self = this
+
+    clearTimeout(this._searchChangeTimer)
+
+    this._searchChangeTimer = setTimeout(function () {
+      // Get and send the results
+      callback(self._getSearchResults(keywords, self))
+    }, this._eventHandlingDelay)
+  },
+
+  // Internal search functionality
+  _getSearchResults: function (keywords, self) {
+    var BreakException = {}
+    var noSearchPerformed = true
+    var foundKeys = []
+    var keywordArray = keywords.trim().toLowerCase().split(/\s+/)
+
+    self._keys.forEach(function (singleKey) {
+      var inKeyWords = []
+
+      if (singleKey.meta.v === 1) {
+        inKeyWords = singleKey.meta.c.concat([
+          singleKey.meta.u,
+          singleKey.meta.t,
+          singleKey.meta.l
+        ]).concat(singleKey.meta.n.trim().split(/\s+/))
+      }
+
+      try {
+        inKeyWords.forEach(function (value) {
+          var inKeyWord = value.toLowerCase()
+
+          keywordArray.forEach(function (keyword) {
+            noSearchPerformed = false
+
+            if (keyword.search(inKeyWord) !== -1) {
+              foundKeys.push(singleKey)
+              throw BreakException
+            }
+          })
+        })
+      } catch (e) {
+        if (e !== BreakException) throw e
+      }
+    })
+
+    if (noSearchPerformed) {
+      foundKeys = self._keys
+    }
+
+    return foundKeys
   },
 
   // Get the key details provided the keyId
