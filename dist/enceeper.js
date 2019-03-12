@@ -1529,11 +1529,29 @@ enceeper.app.prototype = {
         var inKeyWords = []
 
         if (singleKey.meta.v === 1) {
-          inKeyWords = singleKey.meta.c.concat([
-            singleKey.meta.u,
-            singleKey.meta.t,
-            singleKey.meta.l
-          ]).concat(singleKey.meta.n.trim().split(/\s+/))
+          inKeyWords = []
+
+          // We require the categories to be a string or an array
+          if (self._stringNotEmpty(singleKey.meta.c)) {
+            inKeyWords.push(singleKey.meta.c)
+          } else if (Array.isArray(singleKey.meta.c)) {
+            inKeyWords = singleKey.meta.c
+          }
+
+          // The rest are not
+          if (self._stringNotEmpty(singleKey.meta.u)) {
+            inKeyWords.push(singleKey.meta.u)
+          }
+          if (self._stringNotEmpty(singleKey.meta.t)) {
+            inKeyWords.push(singleKey.meta.t)
+          }
+          if (self._stringNotEmpty(singleKey.meta.l)) {
+            inKeyWords.push(singleKey.meta.l)
+          }
+          // Finally the notes
+          if (self._stringNotEmpty(singleKey.meta.n)) {
+            inKeyWords = inKeyWords.concat(singleKey.meta.n.trim().split(/\s+/))
+          }
         }
 
         try {
@@ -1543,7 +1561,7 @@ enceeper.app.prototype = {
             keywordArray.forEach(function (keyword) {
               noSearchPerformed = false
 
-              if (keyword.search(inKeyWord) !== -1) {
+              if (inKeyWord.search(keyword) !== -1) {
                 foundKeys.push(singleKey)
                 throw BreakException
               }
@@ -1560,6 +1578,14 @@ enceeper.app.prototype = {
     }
 
     return foundKeys
+  },
+
+  // Check if a string is empty
+  _stringNotEmpty: function (str) {
+    if (typeof str !== 'string') {
+      return false
+    }
+    return (str.trim().length !== 0)
   },
 
   // Get the key details provided the keyId
