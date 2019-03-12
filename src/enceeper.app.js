@@ -231,6 +231,13 @@ enceeper.app.prototype = {
   search: function (keywords, callback) {
     var self = this
 
+    if (typeof keywords !== 'string') {
+      throw new InvalidArgumentException('You must provide the keywords string.')
+    }
+    if (typeof callback !== 'function') {
+      throw new InvalidArgumentException('You must provide a callback for the search results.')
+    }
+
     clearTimeout(this._searchChangeTimer)
 
     this._searchChangeTimer = setTimeout(function () {
@@ -242,38 +249,41 @@ enceeper.app.prototype = {
   // Internal search functionality
   _getSearchResults: function (keywords, self) {
     var BreakException = {}
-    var noSearchPerformed = true
+    var noSearchPerformed = false
     var foundKeys = []
     var keywordArray = keywords.trim().toLowerCase().split(/\s+/)
 
-    self._keys.forEach(function (singleKey) {
-      var inKeyWords = []
+    if (self._keys !== null) {
+      noSearchPerformed = true
+      self._keys.forEach(function (singleKey) {
+        var inKeyWords = []
 
-      if (singleKey.meta.v === 1) {
-        inKeyWords = singleKey.meta.c.concat([
-          singleKey.meta.u,
-          singleKey.meta.t,
-          singleKey.meta.l
-        ]).concat(singleKey.meta.n.trim().split(/\s+/))
-      }
+        if (singleKey.meta.v === 1) {
+          inKeyWords = singleKey.meta.c.concat([
+            singleKey.meta.u,
+            singleKey.meta.t,
+            singleKey.meta.l
+          ]).concat(singleKey.meta.n.trim().split(/\s+/))
+        }
 
-      try {
-        inKeyWords.forEach(function (value) {
-          var inKeyWord = value.toLowerCase()
+        try {
+          inKeyWords.forEach(function (value) {
+            var inKeyWord = value.toLowerCase()
 
-          keywordArray.forEach(function (keyword) {
-            noSearchPerformed = false
+            keywordArray.forEach(function (keyword) {
+              noSearchPerformed = false
 
-            if (keyword.search(inKeyWord) !== -1) {
-              foundKeys.push(singleKey)
-              throw BreakException
-            }
+              if (keyword.search(inKeyWord) !== -1) {
+                foundKeys.push(singleKey)
+                throw BreakException
+              }
+            })
           })
-        })
-      } catch (e) {
-        if (e !== BreakException) throw e
-      }
-    })
+        } catch (e) {
+          if (e !== BreakException) throw e
+        }
+      })
+    }
 
     if (noSearchPerformed) {
       foundKeys = self._keys
