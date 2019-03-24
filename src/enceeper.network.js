@@ -102,6 +102,8 @@ enceeper.network.prototype = {
         if (typeof jqXHR.responseJSON !== 'undefined' &&
                         typeof jqXHR.responseJSON.errorMessage !== 'undefined') {
           errorMessage = jqXHR.responseJSON.errorMessage
+        } else {
+          errorMessage = 'General network error'
         }
 
         failureCallback(jqXHR.status, errorMessage)
