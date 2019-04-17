@@ -97,7 +97,7 @@ enceeper.app.prototype = {
 
     self._api.password(oldPassword, newPassword, function (data) {
       // First store the new account keys
-      this._accountKeys = data.result.keys
+      self._accountKeys = data.result.keys
       // Then execute the callback
       successCallback(data)
     }, function (status, errorMessage) {
