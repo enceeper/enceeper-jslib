@@ -265,7 +265,7 @@ enceeper.app.prototype = {
           if (self._stringNotEmpty(singleKey.meta.c)) {
             inKeyWords.push(singleKey.meta.c)
           } else if (Array.isArray(singleKey.meta.c)) {
-            inKeyWords = singleKey.meta.c
+            inKeyWords = singleKey.meta.c.slice()
           }
 
           // The rest are not
