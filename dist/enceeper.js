@@ -2072,7 +2072,7 @@ enceeper.app.prototype = {
   },
 
   _checkAndReAuth: function (self, status, errorMessage, successCallback, failureCallback) {
-    if (status === 403) {
+    if (status === 401 || status === 403) {
       var args = ''
       for (var i = 0; i < self._arguments.length; i++) {
         // if ( typeof self._arguments[i] === 'function' )
