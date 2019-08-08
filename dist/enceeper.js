@@ -322,6 +322,9 @@ enceeper.srp6a.prototype = {
 // You should have received a copy of the GNU General Public License along with this program. If
 // not, see <https://www.gnu.org/licenses/>.
 //
+// Maybe use the following to not block the UI:
+// https://github.com/dchest/scrypt-async-js
+//
 
 // Check our requirements
 if (typeof module === 'object') {
@@ -1857,6 +1860,7 @@ enceeper.app.prototype = {
       // If not slots remain remove key entry (this is for shared keys)
       if (self._keys[self._mapping['key_' + keyId]].slots.length === 0) {
         self._keys.splice(self._mapping['key_' + keyId], 1)
+        self._createInternalStructure(self)
       }
 
       // Then execute the callback

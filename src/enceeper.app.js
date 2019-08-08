@@ -585,6 +585,7 @@ enceeper.app.prototype = {
       // If not slots remain remove key entry (this is for shared keys)
       if (self._keys[self._mapping['key_' + keyId]].slots.length === 0) {
         self._keys.splice(self._mapping['key_' + keyId], 1)
+        self._createInternalStructure(self)
       }
 
       // Then execute the callback
