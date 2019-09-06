@@ -421,6 +421,13 @@ enceeper.app.prototype = {
     self._api.deleteKey(keyId, function (data) {
       // Remove the deleted key
       self._keys.splice(self._mapping['key_' + keyId], 1)
+      // Remove the deleted key from the shares
+      for (var i = 0; i < self._shares.length; i++) {
+        if (self._shares[i].key_id === keyId) {
+          self._shares.splice(i, 1)
+          break
+        }
+      }
 
       self._createInternalStructure(self)
 
