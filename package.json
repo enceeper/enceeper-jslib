@@ -1,6 +1,6 @@
 {
   "name": "enceeper-jslib",
-  "version": "1.1.11",
+  "version": "1.1.12",
   "description": "A reference library for building JS apps on top of the Enceeper service. Our own cross-platform Enceeper app is based on this library.",
   "keywords": [
     "enceeper",

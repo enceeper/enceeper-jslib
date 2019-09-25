@@ -1997,7 +1997,14 @@ enceeper.app.prototype = {
   _setKeys: function (data, ref) {
     var self = ref || this
 
-    self._data = data
+    // Clone object (to store it intact in cache)
+    // ->
+    // This is called in signin and keys, so any changes between
+    // re-sync (add, delete, update) will not be available
+    // <-
+    self._data = JSON.parse(JSON.stringify(data))
+
+    // Assign values
     self._keys = data.keys
     self._shares = data.shares
 
