@@ -753,13 +753,25 @@ enceeper.api = function (email, pass, successCallback, failureCallback) {
     throw new InvalidArgumentException('You must provide your password.')
   }
 
+  // Consts
+  this.baseUrl = 'https://www.enceeper.com/api/v1/'
+  this.notificationType = {
+    NOTHING: 0,
+    REPORT: 1,
+    APPROVE: 2
+  }
+  this.keyStatus = {
+    ENABLED: 0,
+    DISABLED: 1
+  }
+
   this._email = email
   this._pass = pass.normalize('NFKC')
 
   // Our libraries
   this._crypto = null // We will instantiate once we are logged
   this._srp6a = new enceeper.srp6a(this._email, this._pass)
-  this._network = new enceeper.network('https://www.enceeper.com/api/v1/', successCallback, failureCallback)
+  this._network = new enceeper.network(this.baseUrl, successCallback, failureCallback)
 
   // The callbacks
   this._successCallback = successCallback
@@ -770,17 +782,6 @@ enceeper.api = function (email, pass, successCallback, failureCallback) {
   this._srp6a_salt = null
   this._srp6a_B = null
   this._scrypt_salt = null
-
-  // Consts
-  this.notificationType = {
-    NOTHING: 0,
-    REPORT: 1,
-    APPROVE: 2
-  }
-  this.keyStatus = {
-    ENABLED: 0,
-    DISABLED: 1
-  }
 }
 
 enceeper.api.prototype = {
@@ -997,6 +998,21 @@ enceeper.api.prototype = {
       self._resetState(self)
 
       successCallback(data)
+    }, failureCallback)
+  },
+
+  webAuth: function (successCallback, failureCallback) {
+    var self = this
+
+    if (this._crypto === null) {
+      throw new InvalidStateException('You must login first.')
+    }
+
+    successCallback = successCallback || this._successCallback || this._defaultCallback
+    failureCallback = failureCallback || this._failureCallback || this._defaultCallback
+
+    self._network.call('GET', 'user/webauth', null, function (data) {
+      successCallback(self.baseUrl + 'user/login/' + data.result.token)
     }, failureCallback)
   },
 
@@ -1396,6 +1412,26 @@ enceeper.app.prototype = {
     // -- end of block
 
     self._api.delete(successCallback, function (status, errorMessage) {
+      self._checkAndReAuth(self, status, errorMessage, successCallback, failureCallback)
+    })
+  },
+
+  webAuth: function (successCallback, failureCallback, ref) {
+    // -- block to allow reauth
+    var self = ref || this
+
+    self._method = 'webAuth'
+    self._arguments = arguments
+    if (ref) {
+      delete self._arguments[self._arguments.length - 1]
+      self._arguments.length--
+    }
+
+    successCallback = successCallback || self._api._successCallback || self._api._defaultCallback
+    failureCallback = failureCallback || self._api._failureCallback || self._api._defaultCallback
+    // -- end of block
+
+    self._api.webAuth(successCallback, function (status, errorMessage) {
       self._checkAndReAuth(self, status, errorMessage, successCallback, failureCallback)
     })
   },

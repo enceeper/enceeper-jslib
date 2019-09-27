@@ -49,13 +49,25 @@ enceeper.api = function (email, pass, successCallback, failureCallback) {
     throw new InvalidArgumentException('You must provide your password.')
   }
 
+  // Consts
+  this.baseUrl = 'https://www.enceeper.com/api/v1/'
+  this.notificationType = {
+    NOTHING: 0,
+    REPORT: 1,
+    APPROVE: 2
+  }
+  this.keyStatus = {
+    ENABLED: 0,
+    DISABLED: 1
+  }
+
   this._email = email
   this._pass = pass.normalize('NFKC')
 
   // Our libraries
   this._crypto = null // We will instantiate once we are logged
   this._srp6a = new enceeper.srp6a(this._email, this._pass)
-  this._network = new enceeper.network('https://www.enceeper.com/api/v1/', successCallback, failureCallback)
+  this._network = new enceeper.network(this.baseUrl, successCallback, failureCallback)
 
   // The callbacks
   this._successCallback = successCallback
@@ -66,17 +78,6 @@ enceeper.api = function (email, pass, successCallback, failureCallback) {
   this._srp6a_salt = null
   this._srp6a_B = null
   this._scrypt_salt = null
-
-  // Consts
-  this.notificationType = {
-    NOTHING: 0,
-    REPORT: 1,
-    APPROVE: 2
-  }
-  this.keyStatus = {
-    ENABLED: 0,
-    DISABLED: 1
-  }
 }
 
 enceeper.api.prototype = {
@@ -293,6 +294,21 @@ enceeper.api.prototype = {
       self._resetState(self)
 
       successCallback(data)
+    }, failureCallback)
+  },
+
+  webAuth: function (successCallback, failureCallback) {
+    var self = this
+
+    if (this._crypto === null) {
+      throw new InvalidStateException('You must login first.')
+    }
+
+    successCallback = successCallback || this._successCallback || this._defaultCallback
+    failureCallback = failureCallback || this._failureCallback || this._defaultCallback
+
+    self._network.call('GET', 'user/webauth', null, function (data) {
+      successCallback(self.baseUrl + 'user/login/' + data.result.token)
     }, failureCallback)
   },
 

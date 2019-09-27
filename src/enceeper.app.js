@@ -125,6 +125,26 @@ enceeper.app.prototype = {
     })
   },
 
+  webAuth: function (successCallback, failureCallback, ref) {
+    // -- block to allow reauth
+    var self = ref || this
+
+    self._method = 'webAuth'
+    self._arguments = arguments
+    if (ref) {
+      delete self._arguments[self._arguments.length - 1]
+      self._arguments.length--
+    }
+
+    successCallback = successCallback || self._api._successCallback || self._api._defaultCallback
+    failureCallback = failureCallback || self._api._failureCallback || self._api._defaultCallback
+    // -- end of block
+
+    self._api.webAuth(successCallback, function (status, errorMessage) {
+      self._checkAndReAuth(self, status, errorMessage, successCallback, failureCallback)
+    })
+  },
+
   keys: function (successCallback, failureCallback, ref) {
     // -- block to allow reauth
     var self = ref || this

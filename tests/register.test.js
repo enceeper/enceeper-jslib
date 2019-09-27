@@ -75,6 +75,15 @@ describe('perform basic account actions', () => {
   })
 
   // --
+  test('web auth token', done => {
+    global.enc4.webAuth(function () {
+      done()
+    }, function (status, errorMessage) {
+      throw new Error(errorMessage || 'Not defined')
+    })
+  })
+
+  // --
   test('delete the account', done => {
     global.enc4.delete(function () {
       done()
