@@ -805,7 +805,7 @@ enceeper.app.prototype = {
       }
 
       if (typeof key.meta.c === 'string') {
-        categories = [ key.meta.c ]
+        categories = [key.meta.c]
       } else {
         categories = key.meta.c
       }

@@ -349,7 +349,7 @@ enceeper.crypto.prototype = {
   _iterationCopy: function (src) {
     var target = {}
     for (var prop in src) {
-      if (src.hasOwnProperty(prop)) {
+      if (Object.prototype.hasOwnProperty.call(src, prop)) {
         target[prop] = src[prop]
       }
     }

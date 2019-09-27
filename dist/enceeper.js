@@ -655,7 +655,7 @@ enceeper.crypto.prototype = {
   _iterationCopy: function (src) {
     var target = {}
     for (var prop in src) {
-      if (src.hasOwnProperty(prop)) {
+      if (Object.prototype.hasOwnProperty.call(src, prop)) {
         target[prop] = src[prop]
       }
     }
@@ -1176,7 +1176,7 @@ enceeper.api.prototype = {
     successCallback = successCallback || this._successCallback || this._defaultCallback
     failureCallback = failureCallback || this._failureCallback || this._defaultCallback
 
-    this._network.call('POST', 'user/search', { 'email': email }, successCallback, failureCallback)
+    this._network.call('POST', 'user/search', { email: email }, successCallback, failureCallback)
   },
 
   createShare: function (keyId, slot0, email, pubKey, successCallback, failureCallback) {
@@ -2096,7 +2096,7 @@ enceeper.app.prototype = {
       }
 
       if (typeof key.meta.c === 'string') {
-        categories = [ key.meta.c ]
+        categories = [key.meta.c]
       } else {
         categories = key.meta.c
       }

@@ -472,7 +472,7 @@ enceeper.api.prototype = {
     successCallback = successCallback || this._successCallback || this._defaultCallback
     failureCallback = failureCallback || this._failureCallback || this._defaultCallback
 
-    this._network.call('POST', 'user/search', { 'email': email }, successCallback, failureCallback)
+    this._network.call('POST', 'user/search', { email: email }, successCallback, failureCallback)
   },
 
   createShare: function (keyId, slot0, email, pubKey, successCallback, failureCallback) {
