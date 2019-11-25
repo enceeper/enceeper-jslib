@@ -50,7 +50,7 @@ enceeper.api = function (email, pass, successCallback, failureCallback) {
   }
 
   // Consts
-  this.baseUrl = 'https://www.enceeper.com/api/v1/'
+  this.baseUrl = 'https://api.enceeper.com/api/v1/'
   this.notificationType = {
     NOTHING: 0,
     REPORT: 1,
