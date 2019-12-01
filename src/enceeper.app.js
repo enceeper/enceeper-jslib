@@ -783,8 +783,11 @@ enceeper.app.prototype = {
   },
 
   _createInternalStructure: function (self) {
-    var key, decrypted, categories, category
+    var key, decrypted, categories, category, sharedCategories, mySharedCategory, categorySharedHeader
 
+    categorySharedHeader = '🌐 '
+    mySharedCategory = null
+    sharedCategories = []
     self._listing = []
     self._mapping = {}
 
@@ -818,13 +821,44 @@ enceeper.app.prototype = {
           continue
         }
 
-        if (!self._listing.includes(category)) {
-          self._listing.push(category)
-          self._mapping['cat_' + category] = []
+        // This is a shared entry, so do not include the category
+        if (key.shared) {
+          category = categorySharedHeader + 'with ' + key.with
+
+          if (!sharedCategories.includes(category)) {
+            sharedCategories.push(category)
+            self._mapping['cat_' + category] = []
+          }
+        } else {
+          if (!self._listing.includes(category)) {
+            self._listing.push(category)
+            self._mapping['cat_' + category] = []
+          }
         }
 
         // Mapping of categories to key indexes
         self._mapping['cat_' + category].push(i)
+
+        // We break as we do not need to loop the categories
+        if (key.shared) {
+          break
+        }
+      }
+
+      // Check slots for keys that I have shared with others
+      if (!key.shared) {
+        for (var k = 0; k < key.slots.length; k++) {
+          if (key.slots[k].shared) {
+            if (mySharedCategory === null) {
+              mySharedCategory = categorySharedHeader + ' with others'
+              self._mapping['cat_' + mySharedCategory] = []
+            }
+
+            self._mapping['cat_' + mySharedCategory].push(i)
+
+            break
+          }
+        }
       }
 
       // Mapping of key_id's to key indexes
@@ -832,6 +866,14 @@ enceeper.app.prototype = {
     }
 
     self._listing.sort()
+    // Now add the shared categories
+    if (mySharedCategory !== null) {
+      self._listing.push(mySharedCategory)
+    }
+    if (sharedCategories.length > 0) {
+      sharedCategories.sort()
+      self._listing = self._listing.concat(sharedCategories)
+    }
   },
 
   _checkAndReAuth: function (self, status, errorMessage, successCallback, failureCallback) {
