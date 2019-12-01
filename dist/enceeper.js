@@ -1602,7 +1602,8 @@ enceeper.app.prototype = {
             keywordArray.forEach(function (keyword) {
               noSearchPerformed = false
 
-              if (inKeyWord.search(keyword) !== -1) {
+              // Escape RegEx expression
+              if (inKeyWord.search(keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')) !== -1) {
                 foundKeys.push(singleKey)
                 throw BreakException
               }
@@ -2076,7 +2077,7 @@ enceeper.app.prototype = {
   _createInternalStructure: function (self) {
     var key, decrypted, categories, category, sharedCategories, mySharedCategory, categorySharedHeader
 
-    categorySharedHeader = '🌐 '
+    categorySharedHeader = '🔗 '
     mySharedCategory = null
     sharedCategories = []
     self._listing = []
