@@ -89,7 +89,7 @@ enceeper.api.prototype = {
   },
 
   register: function (successCallback, failureCallback) {
-    var self = this
+    const self = this
 
     this._resetState(this)
 
@@ -97,11 +97,11 @@ enceeper.api.prototype = {
     failureCallback = failureCallback || this._failureCallback || this._defaultCallback
 
     this._srp6a.register(function (salt, verifier) {
-      var scryptSalt = sjcl.codec.hex.fromBits(sjcl.random.randomWords(8))
-      var regCrypto = new enceeper.crypto(self._pass, scryptSalt)
+      const scryptSalt = sjcl.codec.hex.fromBits(sjcl.random.randomWords(8))
+      const regCrypto = new enceeper.crypto(self._pass, scryptSalt)
 
       // If we change scrypt or keys we must update: login, signin and password
-      var register = {
+      const register = {
         email: self._email,
         auth: {
           srp6a: {
@@ -120,7 +120,7 @@ enceeper.api.prototype = {
   },
 
   challenge: function (successCallback, failureCallback) {
-    var self = this
+    const self = this
 
     if (this._crypto !== null) {
       throw new InvalidStateException('You are already logged in. Please logout first.')
@@ -144,7 +144,7 @@ enceeper.api.prototype = {
   },
 
   login: function (successCallback, failureCallback) {
-    var self = this
+    const self = this
 
     if (this._crypto !== null) {
       throw new InvalidStateException('You are already logged in. Please logout first.')
@@ -157,7 +157,7 @@ enceeper.api.prototype = {
     failureCallback = failureCallback || this._failureCallback || this._defaultCallback
 
     this._srp6a.step1(this._srp6a_salt, this._srp6a_B, function (cPubKey, m1) {
-      var login = {
+      const login = {
         srp6a: {
           A: cPubKey,
           M1: m1,
@@ -192,7 +192,7 @@ enceeper.api.prototype = {
   },
 
   signin: function (successCallback, failureCallback) {
-    var self = this
+    const self = this
 
     if (this._crypto !== null) {
       throw new InvalidStateException('You are already logged in. Please logout first.')
@@ -216,8 +216,7 @@ enceeper.api.prototype = {
   },
 
   password: function (oldPassword, newPassword, successCallback, failureCallback) {
-    var self = this
-    var newSRP6a, newCrypto, kek
+    const self = this
 
     if (this._crypto === null) {
       throw new InvalidStateException('You must login first.')
@@ -245,12 +244,12 @@ enceeper.api.prototype = {
     failureCallback = failureCallback || this._failureCallback || this._defaultCallback
 
     // Create the new values
-    newSRP6a = new enceeper.srp6a(this._email, newPassword)
-    newCrypto = new enceeper.crypto(newPassword, this._scrypt_salt)
-    kek = newCrypto.encryptKEK(this._crypto.getKEK())
+    const newSRP6a = new enceeper.srp6a(this._email, newPassword)
+    const newCrypto = new enceeper.crypto(newPassword, this._scrypt_salt)
+    const kek = newCrypto.encryptKEK(this._crypto.getKEK())
 
     newSRP6a.register(function (salt, verifier) {
-      var update = {
+      const update = {
         srp6a: {
           salt: salt,
           verifier: verifier
@@ -280,7 +279,7 @@ enceeper.api.prototype = {
   },
 
   delete: function (successCallback, failureCallback) {
-    var self = this
+    const self = this
 
     if (this._crypto === null) {
       throw new InvalidStateException('You must login first.')
@@ -298,7 +297,7 @@ enceeper.api.prototype = {
   },
 
   webAuth: function (successCallback, failureCallback) {
-    var self = this
+    const self = this
 
     if (this._crypto === null) {
       throw new InvalidStateException('You must login first.')
@@ -324,8 +323,6 @@ enceeper.api.prototype = {
   },
 
   addKey: function (meta, value, successCallback, failureCallback) {
-    var key
-
     if (this._crypto === null) {
       throw new InvalidStateException('You must login first.')
     }
@@ -333,7 +330,7 @@ enceeper.api.prototype = {
     successCallback = successCallback || this._successCallback || this._defaultCallback
     failureCallback = failureCallback || this._failureCallback || this._defaultCallback
 
-    key = this._crypto.createKey(meta, value)
+    const key = this._crypto.createKey(meta, value)
 
     this._network.call('POST', 'user/keys', key, successCallback, failureCallback)
   },
@@ -353,8 +350,6 @@ enceeper.api.prototype = {
   },
 
   updateKey: function (keyId, slot0, meta, value, status, successCallback, failureCallback) {
-    var key
-
     if (this._crypto === null) {
       throw new InvalidStateException('You must login first.')
     }
@@ -371,15 +366,13 @@ enceeper.api.prototype = {
     successCallback = successCallback || this._successCallback || this._defaultCallback
     failureCallback = failureCallback || this._failureCallback || this._defaultCallback
 
-    key = this._crypto.updateKey(slot0, meta, value)
+    const key = this._crypto.updateKey(slot0, meta, value)
     key.status = status
 
     this._network.call('PUT', 'user/keys/' + keyId, key, successCallback, failureCallback)
   },
 
   addSlot: function (keyId, slot0, newPass, notify, successCallback, failureCallback) {
-    var key
-
     if (this._crypto === null) {
       throw new InvalidStateException('You must login first.')
     }
@@ -396,7 +389,7 @@ enceeper.api.prototype = {
     successCallback = successCallback || this._successCallback || this._defaultCallback
     failureCallback = failureCallback || this._failureCallback || this._defaultCallback
 
-    key = {
+    const key = {
       value: this._crypto.addSlot(slot0, newPass),
       notify: notify
     }
@@ -405,8 +398,6 @@ enceeper.api.prototype = {
   },
 
   updateSlot: function (keyId, slotId, slot0, newPass, notify, status, successCallback, failureCallback) {
-    var key
-
     if (this._crypto === null) {
       throw new InvalidStateException('You must login first.')
     }
@@ -432,7 +423,7 @@ enceeper.api.prototype = {
     successCallback = successCallback || this._successCallback || this._defaultCallback
     failureCallback = failureCallback || this._failureCallback || this._defaultCallback
 
-    key = {
+    const key = {
       notify: notify,
       status: status
     }
@@ -476,8 +467,6 @@ enceeper.api.prototype = {
   },
 
   createShare: function (keyId, slot0, email, pubKey, successCallback, failureCallback) {
-    var share
-
     if (this._crypto === null) {
       throw new InvalidStateException('You must login first.')
     }
@@ -488,13 +477,13 @@ enceeper.api.prototype = {
       throw new InvalidArgumentException('You must provide the email of the user to share with.')
     }
 
-    share = {
+    successCallback = successCallback || this._successCallback || this._defaultCallback
+    failureCallback = failureCallback || this._failureCallback || this._defaultCallback
+
+    const share = {
       email: email,
       slot: this._crypto.createShareSlot(slot0, pubKey)
     }
-
-    successCallback = successCallback || this._successCallback || this._defaultCallback
-    failureCallback = failureCallback || this._failureCallback || this._defaultCallback
 
     this._network.call('POST', 'user/keys/' + keyId + '/share', share, successCallback, failureCallback)
   },
@@ -545,10 +534,10 @@ enceeper.api.prototype = {
   },
 
   _checkValueInList: function (value, list) {
-    var found, singleValue
+    let found, singleValue
 
     found = false
-    for (var index in list) {
+    for (const index in list) {
       singleValue = list[index]
 
       if (value === singleValue) {
@@ -564,7 +553,7 @@ enceeper.api.prototype = {
     // Using from self: _network and _email
     self._network.call('POST', 'user/challenge', { email: self._email }, function (dataStep1) {
       srp6a.step1(dataStep1.result.srp6a.salt, dataStep1.result.srp6a.B, function (cPubKey, m1) {
-        var login = {
+        const login = {
           srp6a: {
             A: cPubKey,
             M1: m1,

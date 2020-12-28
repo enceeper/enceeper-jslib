@@ -19,6 +19,7 @@
 
 // Check our requirements
 if (typeof module === 'object') {
+  // eslint-disable-next-line
   var jQuery = require('jquery')
 }
 
@@ -50,10 +51,10 @@ enceeper.network = function (baseUrl, successCallback, failureCallback) {
 
 enceeper.network.prototype = {
   call: function (type, url, json, successCallback, failureCallback) {
-    var typeUpper = null
-    var jsonBody = null
-    var self = this
-    var requestTypes = ['GET', 'POST', 'PUT', 'DELETE']
+    const self = this
+    const requestTypes = ['GET', 'POST', 'PUT', 'DELETE']
+    let typeUpper = null
+    let jsonBody = null
 
     successCallback = successCallback || this._successCallback
     failureCallback = failureCallback || this._failureCallback
@@ -97,7 +98,7 @@ enceeper.network.prototype = {
         successCallback(data)
       },
       error: function (jqXHR, textStatus, errorThrown) {
-        var errorMessage
+        let errorMessage
 
         if (typeof jqXHR.responseJSON !== 'undefined' &&
                         typeof jqXHR.responseJSON.errorMessage !== 'undefined') {

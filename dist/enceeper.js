@@ -21,11 +21,11 @@
 
 'use strict'
 
-var enceeper = {
+const enceeper = {
 }
 
 enceeper._isHex = function (h) {
-  var re = /[0-9A-Fa-f]*/g
+  const re = /[0-9A-Fa-f]*/g
   return re.test(h)
 }
 //
@@ -87,6 +87,7 @@ InvalidStateException.prototype.constructor = InvalidStateException
 
 // Check our requirements
 if (typeof module === 'object') {
+  // eslint-disable-next-line
   var jQuery = require('jquery')
 }
 
@@ -118,10 +119,10 @@ enceeper.network = function (baseUrl, successCallback, failureCallback) {
 
 enceeper.network.prototype = {
   call: function (type, url, json, successCallback, failureCallback) {
-    var typeUpper = null
-    var jsonBody = null
-    var self = this
-    var requestTypes = ['GET', 'POST', 'PUT', 'DELETE']
+    const self = this
+    const requestTypes = ['GET', 'POST', 'PUT', 'DELETE']
+    let typeUpper = null
+    let jsonBody = null
 
     successCallback = successCallback || this._successCallback
     failureCallback = failureCallback || this._failureCallback
@@ -165,7 +166,7 @@ enceeper.network.prototype = {
         successCallback(data)
       },
       error: function (jqXHR, textStatus, errorThrown) {
-        var errorMessage
+        let errorMessage
 
         if (typeof jqXHR.responseJSON !== 'undefined' &&
                         typeof jqXHR.responseJSON.errorMessage !== 'undefined') {
@@ -214,6 +215,7 @@ enceeper.network.prototype = {
 
 // Check our requirements
 if (typeof module === 'object') {
+  // eslint-disable-next-line
   var jsrp = require('jsrp')
 }
 
@@ -250,7 +252,7 @@ enceeper.srp6a.prototype = {
       throw new InvalidArgumentException('The callback is required for returning the SRP6a registration values.')
     }
 
-    var client = this._client
+    const client = this._client
 
     client.init(this._options, function () {
       client.createVerifier(function (err, result) {
@@ -274,7 +276,7 @@ enceeper.srp6a.prototype = {
       throw new InvalidArgumentException('The callback is required for returning the SRP6a challenge.')
     }
 
-    var client = this._client
+    const client = this._client
 
     client.init(this._options, function () {
       client.setSalt(salt)
@@ -328,7 +330,9 @@ enceeper.srp6a.prototype = {
 
 // Check our requirements
 if (typeof module === 'object') {
+  // eslint-disable-next-line
   var sjcl = require('sjcl')
+  // eslint-disable-next-line
   var nacl = require('tweetnacl')
 }
 
@@ -362,19 +366,15 @@ enceeper.crypto = function (pass, salt) {
 
 enceeper.crypto.prototype = {
   createAccountKeys: function () {
-    var randomKey, keyPair
-
     // We create a KeyEncryptionKey to easily change the user password
     // and a Public-Private key pair to facilitate key sharing
-    randomKey = sjcl.random.randomWords(8)
-    keyPair = nacl.box.keyPair()
+    const randomKey = sjcl.random.randomWords(8)
+    const keyPair = nacl.box.keyPair()
 
     return this.returnAccountKeys(randomKey, keyPair)
   },
 
   returnAccountKeys: function (randomKey, keyPair) {
-    var accountKeys
-
     randomKey = randomKey || this._kek
     keyPair = keyPair || this._keyPair
 
@@ -385,7 +385,7 @@ enceeper.crypto.prototype = {
       throw new InvalidStateException('You must call restoreAccountKeys first.')
     }
 
-    accountKeys = {
+    const accountKeys = {
       v: 1,
       kek: this.encryptKEK(randomKey),
       pub: this._Uint8toHex(keyPair.publicKey),
@@ -442,8 +442,6 @@ enceeper.crypto.prototype = {
 
   // Create new random key and encrypt input values
   createKey: function (meta, value) {
-    var randomKey, encMeta, encValue
-
     if (typeof meta !== 'object') {
       throw new InvalidArgumentException('The meta must be a JSON object.')
     }
@@ -452,9 +450,9 @@ enceeper.crypto.prototype = {
     }
 
     // Generate a random key to encrypt meta and value
-    randomKey = sjcl.random.randomWords(8)
-    encMeta = this._encrypt(randomKey, JSON.stringify(meta))
-    encValue = this._encrypt(randomKey, JSON.stringify(value))
+    const randomKey = sjcl.random.randomWords(8)
+    const encMeta = this._encrypt(randomKey, JSON.stringify(meta))
+    const encValue = this._encrypt(randomKey, JSON.stringify(value))
 
     return {
       meta: encMeta,
@@ -465,7 +463,7 @@ enceeper.crypto.prototype = {
 
   // Restore random key and decrypt input values
   getKey: function (slot0, meta, value) {
-    var randomKey; var decMeta = null; var decValue = null
+    let decMeta = null; let decValue = null
 
     if (typeof slot0 !== 'string') {
       throw new InvalidArgumentException('You must provide slot 0 and it must be a string to restore the random key.')
@@ -477,7 +475,7 @@ enceeper.crypto.prototype = {
       throw new InvalidArgumentException('If you provide the value it must be a string for decryption.')
     }
 
-    randomKey = this._getKeyFromSlot0(slot0)
+    const randomKey = this._getKeyFromSlot0(slot0)
     if (meta !== null) {
       decMeta = this._decrypt(randomKey, meta)
     }
@@ -493,8 +491,6 @@ enceeper.crypto.prototype = {
 
   // Encrypt input values using existing random key from slot0
   updateKey: function (slot0, meta, value) {
-    var randomKey; var result = {}
-
     if (typeof slot0 !== 'string') {
       throw new InvalidArgumentException('You must provide slot 0 and it must be a string to restore the random key.')
     }
@@ -505,8 +501,9 @@ enceeper.crypto.prototype = {
       throw new InvalidArgumentException('If you provide the value it must be a JSON object.')
     }
 
+    const result = {}
     // Generate a random key to encrypt meta and value
-    randomKey = this._getKeyFromSlot0(slot0)
+    const randomKey = this._getKeyFromSlot0(slot0)
     if (meta !== null) {
       result.meta = this._encrypt(randomKey, JSON.stringify(meta))
     }
@@ -519,8 +516,6 @@ enceeper.crypto.prototype = {
 
   // Use a secondary password to create a new slot (for server keys)
   addSlot: function (slot0, newPass) {
-    var salt, randomKey, defaults, passKey
-
     if (typeof slot0 !== 'string') {
       throw new InvalidArgumentException('You must provide slot 0 and it must be a string add a new slot.')
     }
@@ -528,10 +523,10 @@ enceeper.crypto.prototype = {
       throw new InvalidArgumentException('You must provide your new password for the creation of the new slot.')
     }
 
-    salt = sjcl.random.randomWords(8)
-    defaults = this._iterationCopy(this._defaults)
-    randomKey = this._getKeyFromSlot0(slot0)
-    passKey = sjcl.misc.scrypt(newPass, salt).slice(0, 8)
+    const salt = sjcl.random.randomWords(8)
+    const defaults = this._iterationCopy(this._defaults)
+    const randomKey = this._getKeyFromSlot0(slot0)
+    const passKey = sjcl.misc.scrypt(newPass, salt).slice(0, 8)
 
     // Set the scrypt salt for decryption
     //
@@ -543,8 +538,6 @@ enceeper.crypto.prototype = {
   },
 
   createShareSlot: function (slot0, pubKey) {
-    var randomKey, salt, slotUint8
-
     if (this._kek === null) {
       throw new InvalidStateException('You must first restore the Key Encryption Key.')
     }
@@ -556,10 +549,10 @@ enceeper.crypto.prototype = {
       throw new InvalidArgumentException('You must provide the public key of the recepient.')
     }
 
-    randomKey = this._getKeyFromSlot0(slot0)
-    salt = nacl.randomBytes(nacl.secretbox.nonceLength)
+    const randomKey = this._getKeyFromSlot0(slot0)
+    const salt = nacl.randomBytes(nacl.secretbox.nonceLength)
 
-    slotUint8 = nacl.box(this._convertWordArrayToUint8Array(randomKey),
+    const slotUint8 = nacl.box(this._convertWordArrayToUint8Array(randomKey),
       salt,
       this._Uint8fromHex(pubKey),
       this._keyPair.secretKey)
@@ -572,8 +565,6 @@ enceeper.crypto.prototype = {
   },
 
   acceptShareSlot: function (slot, pubKey) {
-    var share, randomKey
-
     if (this._kek === null) {
       throw new InvalidStateException('You must first restore the Key Encryption Key.')
     }
@@ -585,10 +576,10 @@ enceeper.crypto.prototype = {
       throw new InvalidArgumentException('You must provide the public key of the sender.')
     }
 
-    share = JSON.parse(slot)
+    const share = JSON.parse(slot)
 
     if (share.v === 1) {
-      randomKey = nacl.box.open(
+      const randomKey = nacl.box.open(
         this._Uint8fromHex(share.slot),
         this._Uint8fromHex(share.salt),
         this._Uint8fromHex(pubKey),
@@ -606,7 +597,7 @@ enceeper.crypto.prototype = {
       throw new InvalidStateException('You must first restore the Key Encryption Key.')
     }
 
-    var keyMeta = {
+    const keyMeta = {
       v: 1,
       key: sjcl.codec.hex.fromBits(randomKey)
     }
@@ -620,10 +611,8 @@ enceeper.crypto.prototype = {
       throw new InvalidStateException('You must first restore the Key Encryption Key.')
     }
 
-    var decKey, keyMeta
-
-    decKey = this._decrypt(this._kek, slot)
-    keyMeta = JSON.parse(decKey)
+    const decKey = this._decrypt(this._kek, slot)
+    const keyMeta = JSON.parse(decKey)
 
     if (keyMeta.v === 1) {
       return sjcl.codec.hex.toBits(keyMeta.key)
@@ -634,10 +623,8 @@ enceeper.crypto.prototype = {
 
   // Check the secondary password against the slot
   _getKeyFromSlotX: function (newPass, slot) {
-    var encKey, passKey
-
-    encKey = JSON.parse(slot)
-    passKey = sjcl.misc.scrypt(newPass, sjcl.codec.base64.toBits(encKey.scrypt)).slice(0, 8)
+    const encKey = JSON.parse(slot)
+    const passKey = sjcl.misc.scrypt(newPass, sjcl.codec.base64.toBits(encKey.scrypt)).slice(0, 8)
 
     return sjcl.codec.hex.toBits(sjcl._decrypt(passKey, slot))
   },
@@ -653,8 +640,8 @@ enceeper.crypto.prototype = {
   },
 
   _iterationCopy: function (src) {
-    var target = {}
-    for (var prop in src) {
+    const target = {}
+    for (const prop in src) {
       if (Object.prototype.hasOwnProperty.call(src, prop)) {
         target[prop] = src[prop]
       }
@@ -671,11 +658,9 @@ enceeper.crypto.prototype = {
   },
 
   _convertWordArrayToUint8Array: function (wordArray) {
-    var len = wordArray.length
-
-    var u8Array = new Uint8Array(len << 2)
-
-    var offset = 0; var word; var i
+    const len = wordArray.length
+    const u8Array = new Uint8Array(len << 2)
+    let offset = 0; let word; let i
 
     for (i = 0; i < len; i++) {
       word = wordArray[i]
@@ -688,7 +673,7 @@ enceeper.crypto.prototype = {
   },
 
   _convertUint8ArrayToWordArray: function (u8Array) {
-    var words = []; var i = 0; var len = u8Array.length
+    const words = []; let i = 0; const len = u8Array.length
 
     while (i < len) {
       words.push(
@@ -793,7 +778,7 @@ enceeper.api.prototype = {
   },
 
   register: function (successCallback, failureCallback) {
-    var self = this
+    const self = this
 
     this._resetState(this)
 
@@ -801,11 +786,11 @@ enceeper.api.prototype = {
     failureCallback = failureCallback || this._failureCallback || this._defaultCallback
 
     this._srp6a.register(function (salt, verifier) {
-      var scryptSalt = sjcl.codec.hex.fromBits(sjcl.random.randomWords(8))
-      var regCrypto = new enceeper.crypto(self._pass, scryptSalt)
+      const scryptSalt = sjcl.codec.hex.fromBits(sjcl.random.randomWords(8))
+      const regCrypto = new enceeper.crypto(self._pass, scryptSalt)
 
       // If we change scrypt or keys we must update: login, signin and password
-      var register = {
+      const register = {
         email: self._email,
         auth: {
           srp6a: {
@@ -824,7 +809,7 @@ enceeper.api.prototype = {
   },
 
   challenge: function (successCallback, failureCallback) {
-    var self = this
+    const self = this
 
     if (this._crypto !== null) {
       throw new InvalidStateException('You are already logged in. Please logout first.')
@@ -848,7 +833,7 @@ enceeper.api.prototype = {
   },
 
   login: function (successCallback, failureCallback) {
-    var self = this
+    const self = this
 
     if (this._crypto !== null) {
       throw new InvalidStateException('You are already logged in. Please logout first.')
@@ -861,7 +846,7 @@ enceeper.api.prototype = {
     failureCallback = failureCallback || this._failureCallback || this._defaultCallback
 
     this._srp6a.step1(this._srp6a_salt, this._srp6a_B, function (cPubKey, m1) {
-      var login = {
+      const login = {
         srp6a: {
           A: cPubKey,
           M1: m1,
@@ -896,7 +881,7 @@ enceeper.api.prototype = {
   },
 
   signin: function (successCallback, failureCallback) {
-    var self = this
+    const self = this
 
     if (this._crypto !== null) {
       throw new InvalidStateException('You are already logged in. Please logout first.')
@@ -920,8 +905,7 @@ enceeper.api.prototype = {
   },
 
   password: function (oldPassword, newPassword, successCallback, failureCallback) {
-    var self = this
-    var newSRP6a, newCrypto, kek
+    const self = this
 
     if (this._crypto === null) {
       throw new InvalidStateException('You must login first.')
@@ -949,12 +933,12 @@ enceeper.api.prototype = {
     failureCallback = failureCallback || this._failureCallback || this._defaultCallback
 
     // Create the new values
-    newSRP6a = new enceeper.srp6a(this._email, newPassword)
-    newCrypto = new enceeper.crypto(newPassword, this._scrypt_salt)
-    kek = newCrypto.encryptKEK(this._crypto.getKEK())
+    const newSRP6a = new enceeper.srp6a(this._email, newPassword)
+    const newCrypto = new enceeper.crypto(newPassword, this._scrypt_salt)
+    const kek = newCrypto.encryptKEK(this._crypto.getKEK())
 
     newSRP6a.register(function (salt, verifier) {
-      var update = {
+      const update = {
         srp6a: {
           salt: salt,
           verifier: verifier
@@ -984,7 +968,7 @@ enceeper.api.prototype = {
   },
 
   delete: function (successCallback, failureCallback) {
-    var self = this
+    const self = this
 
     if (this._crypto === null) {
       throw new InvalidStateException('You must login first.')
@@ -1002,7 +986,7 @@ enceeper.api.prototype = {
   },
 
   webAuth: function (successCallback, failureCallback) {
-    var self = this
+    const self = this
 
     if (this._crypto === null) {
       throw new InvalidStateException('You must login first.')
@@ -1028,8 +1012,6 @@ enceeper.api.prototype = {
   },
 
   addKey: function (meta, value, successCallback, failureCallback) {
-    var key
-
     if (this._crypto === null) {
       throw new InvalidStateException('You must login first.')
     }
@@ -1037,7 +1019,7 @@ enceeper.api.prototype = {
     successCallback = successCallback || this._successCallback || this._defaultCallback
     failureCallback = failureCallback || this._failureCallback || this._defaultCallback
 
-    key = this._crypto.createKey(meta, value)
+    const key = this._crypto.createKey(meta, value)
 
     this._network.call('POST', 'user/keys', key, successCallback, failureCallback)
   },
@@ -1057,8 +1039,6 @@ enceeper.api.prototype = {
   },
 
   updateKey: function (keyId, slot0, meta, value, status, successCallback, failureCallback) {
-    var key
-
     if (this._crypto === null) {
       throw new InvalidStateException('You must login first.')
     }
@@ -1075,15 +1055,13 @@ enceeper.api.prototype = {
     successCallback = successCallback || this._successCallback || this._defaultCallback
     failureCallback = failureCallback || this._failureCallback || this._defaultCallback
 
-    key = this._crypto.updateKey(slot0, meta, value)
+    const key = this._crypto.updateKey(slot0, meta, value)
     key.status = status
 
     this._network.call('PUT', 'user/keys/' + keyId, key, successCallback, failureCallback)
   },
 
   addSlot: function (keyId, slot0, newPass, notify, successCallback, failureCallback) {
-    var key
-
     if (this._crypto === null) {
       throw new InvalidStateException('You must login first.')
     }
@@ -1100,7 +1078,7 @@ enceeper.api.prototype = {
     successCallback = successCallback || this._successCallback || this._defaultCallback
     failureCallback = failureCallback || this._failureCallback || this._defaultCallback
 
-    key = {
+    const key = {
       value: this._crypto.addSlot(slot0, newPass),
       notify: notify
     }
@@ -1109,8 +1087,6 @@ enceeper.api.prototype = {
   },
 
   updateSlot: function (keyId, slotId, slot0, newPass, notify, status, successCallback, failureCallback) {
-    var key
-
     if (this._crypto === null) {
       throw new InvalidStateException('You must login first.')
     }
@@ -1136,7 +1112,7 @@ enceeper.api.prototype = {
     successCallback = successCallback || this._successCallback || this._defaultCallback
     failureCallback = failureCallback || this._failureCallback || this._defaultCallback
 
-    key = {
+    const key = {
       notify: notify,
       status: status
     }
@@ -1180,8 +1156,6 @@ enceeper.api.prototype = {
   },
 
   createShare: function (keyId, slot0, email, pubKey, successCallback, failureCallback) {
-    var share
-
     if (this._crypto === null) {
       throw new InvalidStateException('You must login first.')
     }
@@ -1192,13 +1166,13 @@ enceeper.api.prototype = {
       throw new InvalidArgumentException('You must provide the email of the user to share with.')
     }
 
-    share = {
+    successCallback = successCallback || this._successCallback || this._defaultCallback
+    failureCallback = failureCallback || this._failureCallback || this._defaultCallback
+
+    const share = {
       email: email,
       slot: this._crypto.createShareSlot(slot0, pubKey)
     }
-
-    successCallback = successCallback || this._successCallback || this._defaultCallback
-    failureCallback = failureCallback || this._failureCallback || this._defaultCallback
 
     this._network.call('POST', 'user/keys/' + keyId + '/share', share, successCallback, failureCallback)
   },
@@ -1249,10 +1223,10 @@ enceeper.api.prototype = {
   },
 
   _checkValueInList: function (value, list) {
-    var found, singleValue
+    let found, singleValue
 
     found = false
-    for (var index in list) {
+    for (const index in list) {
       singleValue = list[index]
 
       if (value === singleValue) {
@@ -1268,7 +1242,7 @@ enceeper.api.prototype = {
     // Using from self: _network and _email
     self._network.call('POST', 'user/challenge', { email: self._email }, function (dataStep1) {
       srp6a.step1(dataStep1.result.srp6a.salt, dataStep1.result.srp6a.B, function (cPubKey, m1) {
-        var login = {
+        const login = {
           srp6a: {
             A: cPubKey,
             M1: m1,
@@ -1340,7 +1314,7 @@ enceeper.app.prototype = {
   },
 
   signin: function (successCallback, failureCallback) {
-    var self = this
+    const self = this
 
     successCallback = successCallback || self._api._successCallback || self._api._defaultCallback
     failureCallback = failureCallback || self._api._failureCallback || self._api._defaultCallback
@@ -1373,7 +1347,7 @@ enceeper.app.prototype = {
 
   password: function (oldPassword, newPassword, successCallback, failureCallback, ref) {
     // -- block to allow reauth
-    var self = ref || this
+    const self = ref || this
 
     self._method = 'password'
     self._arguments = arguments
@@ -1398,7 +1372,7 @@ enceeper.app.prototype = {
 
   delete: function (successCallback, failureCallback, ref) {
     // -- block to allow reauth
-    var self = ref || this
+    const self = ref || this
 
     self._method = 'delete'
     self._arguments = arguments
@@ -1418,7 +1392,7 @@ enceeper.app.prototype = {
 
   webAuth: function (successCallback, failureCallback, ref) {
     // -- block to allow reauth
-    var self = ref || this
+    const self = ref || this
 
     self._method = 'webAuth'
     self._arguments = arguments
@@ -1438,7 +1412,7 @@ enceeper.app.prototype = {
 
   keys: function (successCallback, failureCallback, ref) {
     // -- block to allow reauth
-    var self = ref || this
+    const self = ref || this
 
     self._method = 'keys'
     self._arguments = arguments
@@ -1464,13 +1438,11 @@ enceeper.app.prototype = {
 
   // Create a cache structure
   getForCache: function () {
-    var cache
-
     if (this._api._crypto === null) {
       throw new InvalidStateException('You must login in order to create a fresh cache structure.')
     }
 
-    cache = {
+    const cache = {
       v: 1,
       scrypt: {
         salt: this._api._scrypt_salt
@@ -1522,7 +1494,7 @@ enceeper.app.prototype = {
 
   // Get the keys of the provided category
   getKeys: function (category) {
-    var keys = []
+    const keys = []
 
     if (typeof category !== 'string') {
       throw new InvalidArgumentException('You must provide the category.')
@@ -1531,7 +1503,7 @@ enceeper.app.prototype = {
       throw new InvalidArgumentException('Could not locate the provided category: ' + category + '.')
     }
 
-    for (var i = 0; i < this._mapping['cat_' + category].length; i++) {
+    for (let i = 0; i < this._mapping['cat_' + category].length; i++) {
       keys.push(this._keys[this._mapping['cat_' + category][i]])
     }
 
@@ -1540,7 +1512,7 @@ enceeper.app.prototype = {
 
   // Get the keys of the provided keywords
   search: function (keywords, callback) {
-    var self = this
+    const self = this
 
     if (typeof keywords !== 'string') {
       throw new InvalidArgumentException('You must provide the keywords string.')
@@ -1559,15 +1531,15 @@ enceeper.app.prototype = {
 
   // Internal search functionality
   _getSearchResults: function (keywords, self) {
-    var BreakException = {}
-    var noSearchPerformed = false
-    var foundKeys = []
-    var keywordArray = keywords.trim().toLowerCase().split(/\s+/)
+    const BreakException = {}
+    let noSearchPerformed = false
+    let foundKeys = []
+    const keywordArray = keywords.trim().toLowerCase().split(/\s+/)
 
     if (self._keys !== null) {
       noSearchPerformed = true
       self._keys.forEach(function (singleKey) {
-        var inKeyWords = []
+        let inKeyWords = []
 
         if (singleKey.meta.v === 1) {
           inKeyWords = []
@@ -1597,7 +1569,7 @@ enceeper.app.prototype = {
 
         try {
           inKeyWords.forEach(function (value) {
-            var inKeyWord = value.toLowerCase()
+            const inKeyWord = value.toLowerCase()
 
             keywordArray.forEach(function (keyword) {
               noSearchPerformed = false
@@ -1644,8 +1616,6 @@ enceeper.app.prototype = {
 
   // Get the slot details provided the keyId and slotId
   getSlotDetails: function (keyId, slotId) {
-    var slotIndex
-
     if (typeof keyId !== 'number') {
       throw new InvalidArgumentException('You must provide the keyId.')
     }
@@ -1655,7 +1625,8 @@ enceeper.app.prototype = {
     if (typeof slotId !== 'number') {
       throw new InvalidArgumentException('You must provide the slotId.')
     }
-    slotIndex = this._findSlotIndex(this._keys[this._mapping['key_' + keyId]].slots, slotId)
+
+    const slotIndex = this._findSlotIndex(this._keys[this._mapping['key_' + keyId]].slots, slotId)
     if (slotIndex === -1) {
       throw new InvalidArgumentException('Could not locate the provided slotId: ' + slotId + ' for keyId: ' + keyId + '.')
     }
@@ -1665,8 +1636,6 @@ enceeper.app.prototype = {
 
   // Get the key password provided the keyId
   getPassword: function (keyId) {
-    var key, decryptedKey
-
     if (typeof keyId !== 'number') {
       throw new InvalidArgumentException('You must provide the keyId.')
     }
@@ -1674,15 +1643,15 @@ enceeper.app.prototype = {
       throw new InvalidArgumentException('Could not locate the provided keyId: ' + keyId + '.')
     }
 
-    key = this._keys[this._mapping['key_' + keyId]]
-    decryptedKey = this._api._crypto.getKey(key.slots[0].value, null, key.value)
+    const key = this._keys[this._mapping['key_' + keyId]]
+    const decryptedKey = this._api._crypto.getKey(key.slots[0].value, null, key.value)
 
     return decryptedKey.value
   },
 
   addKey: function (meta, value, successCallback, failureCallback, ref) {
     // -- block to allow reauth
-    var self = ref || this
+    const self = ref || this
 
     self._method = 'addKey'
     self._arguments = arguments
@@ -1710,7 +1679,7 @@ enceeper.app.prototype = {
 
   deleteKey: function (keyId, successCallback, failureCallback, ref) {
     // -- block to allow reauth
-    var self = ref || this
+    const self = ref || this
 
     self._method = 'deleteKey'
     self._arguments = arguments
@@ -1734,7 +1703,7 @@ enceeper.app.prototype = {
       // Remove the deleted key
       self._keys.splice(self._mapping['key_' + keyId], 1)
       // Remove the deleted key from the shares
-      for (var i = 0; i < self._shares.length; i++) {
+      for (let i = 0; i < self._shares.length; i++) {
         if (self._shares[i].key_id === keyId) {
           self._shares.splice(i, 1)
           break
@@ -1752,7 +1721,7 @@ enceeper.app.prototype = {
 
   updateKey: function (keyId, meta, value, status, successCallback, failureCallback, ref) {
     // -- block to allow reauth
-    var self = ref || this
+    const self = ref || this
 
     self._method = 'updateKey'
     self._arguments = arguments
@@ -1787,7 +1756,7 @@ enceeper.app.prototype = {
 
   addSlot: function (keyId, newPass, notify, successCallback, failureCallback, ref) {
     // -- block to allow reauth
-    var self = ref || this
+    const self = ref || this
 
     self._method = 'addSlot'
     self._arguments = arguments
@@ -1821,10 +1790,8 @@ enceeper.app.prototype = {
   },
 
   updateSlot: function (keyId, slotId, newPass, notify, status, successCallback, failureCallback, ref) {
-    var slotIndex
-
     // -- block to allow reauth
-    var self = ref || this
+    const self = ref || this
 
     self._method = 'updateSlot'
     self._arguments = arguments
@@ -1846,7 +1813,8 @@ enceeper.app.prototype = {
     if (typeof slotId !== 'number') {
       throw new InvalidArgumentException('You must provide the slotId.')
     }
-    slotIndex = self._findSlotIndex(self._keys[self._mapping['key_' + keyId]].slots, slotId)
+
+    const slotIndex = self._findSlotIndex(self._keys[self._mapping['key_' + keyId]].slots, slotId)
     if (slotIndex === -1) {
       throw new InvalidArgumentException('Could not locate the provided slotId: ' + slotId + ' for keyId: ' + keyId + '.')
     }
@@ -1868,10 +1836,8 @@ enceeper.app.prototype = {
   },
 
   deleteSlot: function (keyId, slotId, successCallback, failureCallback, ref) {
-    var slotIndex
-
     // -- block to allow reauth
-    var self = ref || this
+    const self = ref || this
 
     self._method = 'deleteSlot'
     self._arguments = arguments
@@ -1893,7 +1859,8 @@ enceeper.app.prototype = {
     if (typeof slotId !== 'number') {
       throw new InvalidArgumentException('You must provide the slotId.')
     }
-    slotIndex = self._findSlotIndex(self._keys[self._mapping['key_' + keyId]].slots, slotId)
+
+    const slotIndex = self._findSlotIndex(self._keys[self._mapping['key_' + keyId]].slots, slotId)
     if (slotIndex === -1) {
       throw new InvalidArgumentException('Could not locate the provided slotId: ' + slotId + ' for keyId: ' + keyId + '.')
     }
@@ -1916,7 +1883,7 @@ enceeper.app.prototype = {
 
   createShare: function (email, keyId, successCallback, failureCallback, ref) {
     // -- block to allow reauth
-    var self = ref || this
+    const self = ref || this
 
     self._method = 'createShare'
     self._arguments = arguments
@@ -1952,10 +1919,8 @@ enceeper.app.prototype = {
   },
 
   deleteShare: function (shareId, successCallback, failureCallback, ref) {
-    var shareIndex
-
     // -- block to allow reauth
-    var self = ref || this
+    const self = ref || this
 
     self._method = 'deleteShare'
     self._arguments = arguments
@@ -1971,7 +1936,8 @@ enceeper.app.prototype = {
     if (typeof shareId !== 'number') {
       throw new InvalidArgumentException('You must provide the shareId.')
     }
-    shareIndex = self._findShareIndex(self._shares, shareId)
+
+    const shareIndex = self._findShareIndex(self._shares, shareId)
     if (shareIndex === -1) {
       throw new InvalidArgumentException('Could not locate the provided shareId: ' + shareId + '.')
     }
@@ -1988,10 +1954,8 @@ enceeper.app.prototype = {
   },
 
   acceptShare: function (shareId, successCallback, failureCallback, ref) {
-    var shareIndex
-
     // -- block to allow reauth
-    var self = ref || this
+    const self = ref || this
 
     self._method = 'acceptShare'
     self._arguments = arguments
@@ -2007,7 +1971,8 @@ enceeper.app.prototype = {
     if (typeof shareId !== 'number') {
       throw new InvalidArgumentException('You must provide the shareId.')
     }
-    shareIndex = self._findShareIndex(self._shares, shareId)
+
+    const shareIndex = self._findShareIndex(self._shares, shareId)
     if (shareIndex === -1) {
       throw new InvalidArgumentException('Could not locate the provided shareId: ' + shareId + '.')
     }
@@ -2032,7 +1997,7 @@ enceeper.app.prototype = {
 
   // Set the keys to create the internal structure (ie. using cache)
   _setKeys: function (data, ref) {
-    var self = ref || this
+    const self = ref || this
 
     // Clone object (to store it intact in cache)
     // ->
@@ -2049,9 +2014,9 @@ enceeper.app.prototype = {
   },
 
   _findShareIndex: function (shares, shareId) {
-    var ret = -1
+    let ret = -1
 
-    for (var i = 0; i < shares.length; i++) {
+    for (let i = 0; i < shares.length; i++) {
       if (shares[i].share_id === shareId) {
         ret = i
         break
@@ -2062,9 +2027,9 @@ enceeper.app.prototype = {
   },
 
   _findSlotIndex: function (slots, slotId) {
-    var ret = -1
+    let ret = -1
 
-    for (var i = 0; i < slots.length; i++) {
+    for (let i = 0; i < slots.length; i++) {
       if (slots[i].slot_id === slotId) {
         ret = i
         break
@@ -2075,11 +2040,11 @@ enceeper.app.prototype = {
   },
 
   _createInternalStructure: function (self) {
-    var key, decrypted, categories, category, sharedCategories, mySharedCategory, categorySharedHeader
+    let key, decrypted, categories, category, mySharedCategory
 
-    categorySharedHeader = '🔗 '
+    const categorySharedHeader = '🔗 '
+    const sharedCategories = []
     mySharedCategory = null
-    sharedCategories = []
     self._listing = []
     self._mapping = {}
 
@@ -2091,7 +2056,7 @@ enceeper.app.prototype = {
       self._shares = []
     }
 
-    for (var i = 0; i < self._keys.length; i++) {
+    for (let i = 0; i < self._keys.length; i++) {
       key = self._keys[i]
 
       if (typeof key.meta === 'string') {
@@ -2105,8 +2070,8 @@ enceeper.app.prototype = {
         categories = key.meta.c
       }
 
-      var arrayLength = categories.length
-      for (var j = 0; j < arrayLength; j++) {
+      const arrayLength = categories.length
+      for (let j = 0; j < arrayLength; j++) {
         category = categories[j]
 
         if (category.length === 0) {
@@ -2139,7 +2104,7 @@ enceeper.app.prototype = {
 
       // Check slots for keys that I have shared with others
       if (!key.shared) {
-        for (var k = 0; k < key.slots.length; k++) {
+        for (let k = 0; k < key.slots.length; k++) {
           if (key.slots[k].shared) {
             if (mySharedCategory === null) {
               mySharedCategory = categorySharedHeader + ' with others'
@@ -2170,8 +2135,8 @@ enceeper.app.prototype = {
 
   _checkAndReAuth: function (self, status, errorMessage, successCallback, failureCallback) {
     if (status === 401 || status === 403) {
-      var args = ''
-      for (var i = 0; i < self._arguments.length; i++) {
+      let args = ''
+      for (let i = 0; i < self._arguments.length; i++) {
         // if ( typeof self._arguments[i] === 'function' )
         //    args += self._arguments[i].name + ', ';
         if (typeof self._arguments[i] === 'number') {

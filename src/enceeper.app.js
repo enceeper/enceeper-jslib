@@ -49,7 +49,7 @@ enceeper.app.prototype = {
   },
 
   signin: function (successCallback, failureCallback) {
-    var self = this
+    const self = this
 
     successCallback = successCallback || self._api._successCallback || self._api._defaultCallback
     failureCallback = failureCallback || self._api._failureCallback || self._api._defaultCallback
@@ -82,7 +82,7 @@ enceeper.app.prototype = {
 
   password: function (oldPassword, newPassword, successCallback, failureCallback, ref) {
     // -- block to allow reauth
-    var self = ref || this
+    const self = ref || this
 
     self._method = 'password'
     self._arguments = arguments
@@ -107,7 +107,7 @@ enceeper.app.prototype = {
 
   delete: function (successCallback, failureCallback, ref) {
     // -- block to allow reauth
-    var self = ref || this
+    const self = ref || this
 
     self._method = 'delete'
     self._arguments = arguments
@@ -127,7 +127,7 @@ enceeper.app.prototype = {
 
   webAuth: function (successCallback, failureCallback, ref) {
     // -- block to allow reauth
-    var self = ref || this
+    const self = ref || this
 
     self._method = 'webAuth'
     self._arguments = arguments
@@ -147,7 +147,7 @@ enceeper.app.prototype = {
 
   keys: function (successCallback, failureCallback, ref) {
     // -- block to allow reauth
-    var self = ref || this
+    const self = ref || this
 
     self._method = 'keys'
     self._arguments = arguments
@@ -173,13 +173,11 @@ enceeper.app.prototype = {
 
   // Create a cache structure
   getForCache: function () {
-    var cache
-
     if (this._api._crypto === null) {
       throw new InvalidStateException('You must login in order to create a fresh cache structure.')
     }
 
-    cache = {
+    const cache = {
       v: 1,
       scrypt: {
         salt: this._api._scrypt_salt
@@ -231,7 +229,7 @@ enceeper.app.prototype = {
 
   // Get the keys of the provided category
   getKeys: function (category) {
-    var keys = []
+    const keys = []
 
     if (typeof category !== 'string') {
       throw new InvalidArgumentException('You must provide the category.')
@@ -240,7 +238,7 @@ enceeper.app.prototype = {
       throw new InvalidArgumentException('Could not locate the provided category: ' + category + '.')
     }
 
-    for (var i = 0; i < this._mapping['cat_' + category].length; i++) {
+    for (let i = 0; i < this._mapping['cat_' + category].length; i++) {
       keys.push(this._keys[this._mapping['cat_' + category][i]])
     }
 
@@ -249,7 +247,7 @@ enceeper.app.prototype = {
 
   // Get the keys of the provided keywords
   search: function (keywords, callback) {
-    var self = this
+    const self = this
 
     if (typeof keywords !== 'string') {
       throw new InvalidArgumentException('You must provide the keywords string.')
@@ -268,15 +266,15 @@ enceeper.app.prototype = {
 
   // Internal search functionality
   _getSearchResults: function (keywords, self) {
-    var BreakException = {}
-    var noSearchPerformed = false
-    var foundKeys = []
-    var keywordArray = keywords.trim().toLowerCase().split(/\s+/)
+    const BreakException = {}
+    let noSearchPerformed = false
+    let foundKeys = []
+    const keywordArray = keywords.trim().toLowerCase().split(/\s+/)
 
     if (self._keys !== null) {
       noSearchPerformed = true
       self._keys.forEach(function (singleKey) {
-        var inKeyWords = []
+        let inKeyWords = []
 
         if (singleKey.meta.v === 1) {
           inKeyWords = []
@@ -306,7 +304,7 @@ enceeper.app.prototype = {
 
         try {
           inKeyWords.forEach(function (value) {
-            var inKeyWord = value.toLowerCase()
+            const inKeyWord = value.toLowerCase()
 
             keywordArray.forEach(function (keyword) {
               noSearchPerformed = false
@@ -353,8 +351,6 @@ enceeper.app.prototype = {
 
   // Get the slot details provided the keyId and slotId
   getSlotDetails: function (keyId, slotId) {
-    var slotIndex
-
     if (typeof keyId !== 'number') {
       throw new InvalidArgumentException('You must provide the keyId.')
     }
@@ -364,7 +360,8 @@ enceeper.app.prototype = {
     if (typeof slotId !== 'number') {
       throw new InvalidArgumentException('You must provide the slotId.')
     }
-    slotIndex = this._findSlotIndex(this._keys[this._mapping['key_' + keyId]].slots, slotId)
+
+    const slotIndex = this._findSlotIndex(this._keys[this._mapping['key_' + keyId]].slots, slotId)
     if (slotIndex === -1) {
       throw new InvalidArgumentException('Could not locate the provided slotId: ' + slotId + ' for keyId: ' + keyId + '.')
     }
@@ -374,8 +371,6 @@ enceeper.app.prototype = {
 
   // Get the key password provided the keyId
   getPassword: function (keyId) {
-    var key, decryptedKey
-
     if (typeof keyId !== 'number') {
       throw new InvalidArgumentException('You must provide the keyId.')
     }
@@ -383,15 +378,15 @@ enceeper.app.prototype = {
       throw new InvalidArgumentException('Could not locate the provided keyId: ' + keyId + '.')
     }
 
-    key = this._keys[this._mapping['key_' + keyId]]
-    decryptedKey = this._api._crypto.getKey(key.slots[0].value, null, key.value)
+    const key = this._keys[this._mapping['key_' + keyId]]
+    const decryptedKey = this._api._crypto.getKey(key.slots[0].value, null, key.value)
 
     return decryptedKey.value
   },
 
   addKey: function (meta, value, successCallback, failureCallback, ref) {
     // -- block to allow reauth
-    var self = ref || this
+    const self = ref || this
 
     self._method = 'addKey'
     self._arguments = arguments
@@ -419,7 +414,7 @@ enceeper.app.prototype = {
 
   deleteKey: function (keyId, successCallback, failureCallback, ref) {
     // -- block to allow reauth
-    var self = ref || this
+    const self = ref || this
 
     self._method = 'deleteKey'
     self._arguments = arguments
@@ -443,7 +438,7 @@ enceeper.app.prototype = {
       // Remove the deleted key
       self._keys.splice(self._mapping['key_' + keyId], 1)
       // Remove the deleted key from the shares
-      for (var i = 0; i < self._shares.length; i++) {
+      for (let i = 0; i < self._shares.length; i++) {
         if (self._shares[i].key_id === keyId) {
           self._shares.splice(i, 1)
           break
@@ -461,7 +456,7 @@ enceeper.app.prototype = {
 
   updateKey: function (keyId, meta, value, status, successCallback, failureCallback, ref) {
     // -- block to allow reauth
-    var self = ref || this
+    const self = ref || this
 
     self._method = 'updateKey'
     self._arguments = arguments
@@ -496,7 +491,7 @@ enceeper.app.prototype = {
 
   addSlot: function (keyId, newPass, notify, successCallback, failureCallback, ref) {
     // -- block to allow reauth
-    var self = ref || this
+    const self = ref || this
 
     self._method = 'addSlot'
     self._arguments = arguments
@@ -530,10 +525,8 @@ enceeper.app.prototype = {
   },
 
   updateSlot: function (keyId, slotId, newPass, notify, status, successCallback, failureCallback, ref) {
-    var slotIndex
-
     // -- block to allow reauth
-    var self = ref || this
+    const self = ref || this
 
     self._method = 'updateSlot'
     self._arguments = arguments
@@ -555,7 +548,8 @@ enceeper.app.prototype = {
     if (typeof slotId !== 'number') {
       throw new InvalidArgumentException('You must provide the slotId.')
     }
-    slotIndex = self._findSlotIndex(self._keys[self._mapping['key_' + keyId]].slots, slotId)
+
+    const slotIndex = self._findSlotIndex(self._keys[self._mapping['key_' + keyId]].slots, slotId)
     if (slotIndex === -1) {
       throw new InvalidArgumentException('Could not locate the provided slotId: ' + slotId + ' for keyId: ' + keyId + '.')
     }
@@ -577,10 +571,8 @@ enceeper.app.prototype = {
   },
 
   deleteSlot: function (keyId, slotId, successCallback, failureCallback, ref) {
-    var slotIndex
-
     // -- block to allow reauth
-    var self = ref || this
+    const self = ref || this
 
     self._method = 'deleteSlot'
     self._arguments = arguments
@@ -602,7 +594,8 @@ enceeper.app.prototype = {
     if (typeof slotId !== 'number') {
       throw new InvalidArgumentException('You must provide the slotId.')
     }
-    slotIndex = self._findSlotIndex(self._keys[self._mapping['key_' + keyId]].slots, slotId)
+
+    const slotIndex = self._findSlotIndex(self._keys[self._mapping['key_' + keyId]].slots, slotId)
     if (slotIndex === -1) {
       throw new InvalidArgumentException('Could not locate the provided slotId: ' + slotId + ' for keyId: ' + keyId + '.')
     }
@@ -625,7 +618,7 @@ enceeper.app.prototype = {
 
   createShare: function (email, keyId, successCallback, failureCallback, ref) {
     // -- block to allow reauth
-    var self = ref || this
+    const self = ref || this
 
     self._method = 'createShare'
     self._arguments = arguments
@@ -661,10 +654,8 @@ enceeper.app.prototype = {
   },
 
   deleteShare: function (shareId, successCallback, failureCallback, ref) {
-    var shareIndex
-
     // -- block to allow reauth
-    var self = ref || this
+    const self = ref || this
 
     self._method = 'deleteShare'
     self._arguments = arguments
@@ -680,7 +671,8 @@ enceeper.app.prototype = {
     if (typeof shareId !== 'number') {
       throw new InvalidArgumentException('You must provide the shareId.')
     }
-    shareIndex = self._findShareIndex(self._shares, shareId)
+
+    const shareIndex = self._findShareIndex(self._shares, shareId)
     if (shareIndex === -1) {
       throw new InvalidArgumentException('Could not locate the provided shareId: ' + shareId + '.')
     }
@@ -697,10 +689,8 @@ enceeper.app.prototype = {
   },
 
   acceptShare: function (shareId, successCallback, failureCallback, ref) {
-    var shareIndex
-
     // -- block to allow reauth
-    var self = ref || this
+    const self = ref || this
 
     self._method = 'acceptShare'
     self._arguments = arguments
@@ -716,7 +706,8 @@ enceeper.app.prototype = {
     if (typeof shareId !== 'number') {
       throw new InvalidArgumentException('You must provide the shareId.')
     }
-    shareIndex = self._findShareIndex(self._shares, shareId)
+
+    const shareIndex = self._findShareIndex(self._shares, shareId)
     if (shareIndex === -1) {
       throw new InvalidArgumentException('Could not locate the provided shareId: ' + shareId + '.')
     }
@@ -741,7 +732,7 @@ enceeper.app.prototype = {
 
   // Set the keys to create the internal structure (ie. using cache)
   _setKeys: function (data, ref) {
-    var self = ref || this
+    const self = ref || this
 
     // Clone object (to store it intact in cache)
     // ->
@@ -758,9 +749,9 @@ enceeper.app.prototype = {
   },
 
   _findShareIndex: function (shares, shareId) {
-    var ret = -1
+    let ret = -1
 
-    for (var i = 0; i < shares.length; i++) {
+    for (let i = 0; i < shares.length; i++) {
       if (shares[i].share_id === shareId) {
         ret = i
         break
@@ -771,9 +762,9 @@ enceeper.app.prototype = {
   },
 
   _findSlotIndex: function (slots, slotId) {
-    var ret = -1
+    let ret = -1
 
-    for (var i = 0; i < slots.length; i++) {
+    for (let i = 0; i < slots.length; i++) {
       if (slots[i].slot_id === slotId) {
         ret = i
         break
@@ -784,11 +775,11 @@ enceeper.app.prototype = {
   },
 
   _createInternalStructure: function (self) {
-    var key, decrypted, categories, category, sharedCategories, mySharedCategory, categorySharedHeader
+    let key, decrypted, categories, category, mySharedCategory
 
-    categorySharedHeader = '🔗 '
+    const categorySharedHeader = '🔗 '
+    const sharedCategories = []
     mySharedCategory = null
-    sharedCategories = []
     self._listing = []
     self._mapping = {}
 
@@ -800,7 +791,7 @@ enceeper.app.prototype = {
       self._shares = []
     }
 
-    for (var i = 0; i < self._keys.length; i++) {
+    for (let i = 0; i < self._keys.length; i++) {
       key = self._keys[i]
 
       if (typeof key.meta === 'string') {
@@ -814,8 +805,8 @@ enceeper.app.prototype = {
         categories = key.meta.c
       }
 
-      var arrayLength = categories.length
-      for (var j = 0; j < arrayLength; j++) {
+      const arrayLength = categories.length
+      for (let j = 0; j < arrayLength; j++) {
         category = categories[j]
 
         if (category.length === 0) {
@@ -848,7 +839,7 @@ enceeper.app.prototype = {
 
       // Check slots for keys that I have shared with others
       if (!key.shared) {
-        for (var k = 0; k < key.slots.length; k++) {
+        for (let k = 0; k < key.slots.length; k++) {
           if (key.slots[k].shared) {
             if (mySharedCategory === null) {
               mySharedCategory = categorySharedHeader + ' with others'
@@ -879,8 +870,8 @@ enceeper.app.prototype = {
 
   _checkAndReAuth: function (self, status, errorMessage, successCallback, failureCallback) {
     if (status === 401 || status === 403) {
-      var args = ''
-      for (var i = 0; i < self._arguments.length; i++) {
+      let args = ''
+      for (let i = 0; i < self._arguments.length; i++) {
         // if ( typeof self._arguments[i] === 'function' )
         //    args += self._arguments[i].name + ', ';
         if (typeof self._arguments[i] === 'number') {

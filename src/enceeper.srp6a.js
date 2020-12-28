@@ -19,6 +19,7 @@
 
 // Check our requirements
 if (typeof module === 'object') {
+  // eslint-disable-next-line
   var jsrp = require('jsrp')
 }
 
@@ -55,7 +56,7 @@ enceeper.srp6a.prototype = {
       throw new InvalidArgumentException('The callback is required for returning the SRP6a registration values.')
     }
 
-    var client = this._client
+    const client = this._client
 
     client.init(this._options, function () {
       client.createVerifier(function (err, result) {
@@ -79,7 +80,7 @@ enceeper.srp6a.prototype = {
       throw new InvalidArgumentException('The callback is required for returning the SRP6a challenge.')
     }
 
-    var client = this._client
+    const client = this._client
 
     client.init(this._options, function () {
       client.setSalt(salt)

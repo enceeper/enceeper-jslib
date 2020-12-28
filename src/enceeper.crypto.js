@@ -22,7 +22,9 @@
 
 // Check our requirements
 if (typeof module === 'object') {
+  // eslint-disable-next-line
   var sjcl = require('sjcl')
+  // eslint-disable-next-line
   var nacl = require('tweetnacl')
 }
 
@@ -56,19 +58,15 @@ enceeper.crypto = function (pass, salt) {
 
 enceeper.crypto.prototype = {
   createAccountKeys: function () {
-    var randomKey, keyPair
-
     // We create a KeyEncryptionKey to easily change the user password
     // and a Public-Private key pair to facilitate key sharing
-    randomKey = sjcl.random.randomWords(8)
-    keyPair = nacl.box.keyPair()
+    const randomKey = sjcl.random.randomWords(8)
+    const keyPair = nacl.box.keyPair()
 
     return this.returnAccountKeys(randomKey, keyPair)
   },
 
   returnAccountKeys: function (randomKey, keyPair) {
-    var accountKeys
-
     randomKey = randomKey || this._kek
     keyPair = keyPair || this._keyPair
 
@@ -79,7 +77,7 @@ enceeper.crypto.prototype = {
       throw new InvalidStateException('You must call restoreAccountKeys first.')
     }
 
-    accountKeys = {
+    const accountKeys = {
       v: 1,
       kek: this.encryptKEK(randomKey),
       pub: this._Uint8toHex(keyPair.publicKey),
@@ -136,8 +134,6 @@ enceeper.crypto.prototype = {
 
   // Create new random key and encrypt input values
   createKey: function (meta, value) {
-    var randomKey, encMeta, encValue
-
     if (typeof meta !== 'object') {
       throw new InvalidArgumentException('The meta must be a JSON object.')
     }
@@ -146,9 +142,9 @@ enceeper.crypto.prototype = {
     }
 
     // Generate a random key to encrypt meta and value
-    randomKey = sjcl.random.randomWords(8)
-    encMeta = this._encrypt(randomKey, JSON.stringify(meta))
-    encValue = this._encrypt(randomKey, JSON.stringify(value))
+    const randomKey = sjcl.random.randomWords(8)
+    const encMeta = this._encrypt(randomKey, JSON.stringify(meta))
+    const encValue = this._encrypt(randomKey, JSON.stringify(value))
 
     return {
       meta: encMeta,
@@ -159,7 +155,7 @@ enceeper.crypto.prototype = {
 
   // Restore random key and decrypt input values
   getKey: function (slot0, meta, value) {
-    var randomKey; var decMeta = null; var decValue = null
+    let decMeta = null; let decValue = null
 
     if (typeof slot0 !== 'string') {
       throw new InvalidArgumentException('You must provide slot 0 and it must be a string to restore the random key.')
@@ -171,7 +167,7 @@ enceeper.crypto.prototype = {
       throw new InvalidArgumentException('If you provide the value it must be a string for decryption.')
     }
 
-    randomKey = this._getKeyFromSlot0(slot0)
+    const randomKey = this._getKeyFromSlot0(slot0)
     if (meta !== null) {
       decMeta = this._decrypt(randomKey, meta)
     }
@@ -187,8 +183,6 @@ enceeper.crypto.prototype = {
 
   // Encrypt input values using existing random key from slot0
   updateKey: function (slot0, meta, value) {
-    var randomKey; var result = {}
-
     if (typeof slot0 !== 'string') {
       throw new InvalidArgumentException('You must provide slot 0 and it must be a string to restore the random key.')
     }
@@ -199,8 +193,9 @@ enceeper.crypto.prototype = {
       throw new InvalidArgumentException('If you provide the value it must be a JSON object.')
     }
 
+    const result = {}
     // Generate a random key to encrypt meta and value
-    randomKey = this._getKeyFromSlot0(slot0)
+    const randomKey = this._getKeyFromSlot0(slot0)
     if (meta !== null) {
       result.meta = this._encrypt(randomKey, JSON.stringify(meta))
     }
@@ -213,8 +208,6 @@ enceeper.crypto.prototype = {
 
   // Use a secondary password to create a new slot (for server keys)
   addSlot: function (slot0, newPass) {
-    var salt, randomKey, defaults, passKey
-
     if (typeof slot0 !== 'string') {
       throw new InvalidArgumentException('You must provide slot 0 and it must be a string add a new slot.')
     }
@@ -222,10 +215,10 @@ enceeper.crypto.prototype = {
       throw new InvalidArgumentException('You must provide your new password for the creation of the new slot.')
     }
 
-    salt = sjcl.random.randomWords(8)
-    defaults = this._iterationCopy(this._defaults)
-    randomKey = this._getKeyFromSlot0(slot0)
-    passKey = sjcl.misc.scrypt(newPass, salt).slice(0, 8)
+    const salt = sjcl.random.randomWords(8)
+    const defaults = this._iterationCopy(this._defaults)
+    const randomKey = this._getKeyFromSlot0(slot0)
+    const passKey = sjcl.misc.scrypt(newPass, salt).slice(0, 8)
 
     // Set the scrypt salt for decryption
     //
@@ -237,8 +230,6 @@ enceeper.crypto.prototype = {
   },
 
   createShareSlot: function (slot0, pubKey) {
-    var randomKey, salt, slotUint8
-
     if (this._kek === null) {
       throw new InvalidStateException('You must first restore the Key Encryption Key.')
     }
@@ -250,10 +241,10 @@ enceeper.crypto.prototype = {
       throw new InvalidArgumentException('You must provide the public key of the recepient.')
     }
 
-    randomKey = this._getKeyFromSlot0(slot0)
-    salt = nacl.randomBytes(nacl.secretbox.nonceLength)
+    const randomKey = this._getKeyFromSlot0(slot0)
+    const salt = nacl.randomBytes(nacl.secretbox.nonceLength)
 
-    slotUint8 = nacl.box(this._convertWordArrayToUint8Array(randomKey),
+    const slotUint8 = nacl.box(this._convertWordArrayToUint8Array(randomKey),
       salt,
       this._Uint8fromHex(pubKey),
       this._keyPair.secretKey)
@@ -266,8 +257,6 @@ enceeper.crypto.prototype = {
   },
 
   acceptShareSlot: function (slot, pubKey) {
-    var share, randomKey
-
     if (this._kek === null) {
       throw new InvalidStateException('You must first restore the Key Encryption Key.')
     }
@@ -279,10 +268,10 @@ enceeper.crypto.prototype = {
       throw new InvalidArgumentException('You must provide the public key of the sender.')
     }
 
-    share = JSON.parse(slot)
+    const share = JSON.parse(slot)
 
     if (share.v === 1) {
-      randomKey = nacl.box.open(
+      const randomKey = nacl.box.open(
         this._Uint8fromHex(share.slot),
         this._Uint8fromHex(share.salt),
         this._Uint8fromHex(pubKey),
@@ -300,7 +289,7 @@ enceeper.crypto.prototype = {
       throw new InvalidStateException('You must first restore the Key Encryption Key.')
     }
 
-    var keyMeta = {
+    const keyMeta = {
       v: 1,
       key: sjcl.codec.hex.fromBits(randomKey)
     }
@@ -314,10 +303,8 @@ enceeper.crypto.prototype = {
       throw new InvalidStateException('You must first restore the Key Encryption Key.')
     }
 
-    var decKey, keyMeta
-
-    decKey = this._decrypt(this._kek, slot)
-    keyMeta = JSON.parse(decKey)
+    const decKey = this._decrypt(this._kek, slot)
+    const keyMeta = JSON.parse(decKey)
 
     if (keyMeta.v === 1) {
       return sjcl.codec.hex.toBits(keyMeta.key)
@@ -328,10 +315,8 @@ enceeper.crypto.prototype = {
 
   // Check the secondary password against the slot
   _getKeyFromSlotX: function (newPass, slot) {
-    var encKey, passKey
-
-    encKey = JSON.parse(slot)
-    passKey = sjcl.misc.scrypt(newPass, sjcl.codec.base64.toBits(encKey.scrypt)).slice(0, 8)
+    const encKey = JSON.parse(slot)
+    const passKey = sjcl.misc.scrypt(newPass, sjcl.codec.base64.toBits(encKey.scrypt)).slice(0, 8)
 
     return sjcl.codec.hex.toBits(sjcl._decrypt(passKey, slot))
   },
@@ -347,8 +332,8 @@ enceeper.crypto.prototype = {
   },
 
   _iterationCopy: function (src) {
-    var target = {}
-    for (var prop in src) {
+    const target = {}
+    for (const prop in src) {
       if (Object.prototype.hasOwnProperty.call(src, prop)) {
         target[prop] = src[prop]
       }
@@ -365,11 +350,9 @@ enceeper.crypto.prototype = {
   },
 
   _convertWordArrayToUint8Array: function (wordArray) {
-    var len = wordArray.length
-
-    var u8Array = new Uint8Array(len << 2)
-
-    var offset = 0; var word; var i
+    const len = wordArray.length
+    const u8Array = new Uint8Array(len << 2)
+    let offset = 0; let word; let i
 
     for (i = 0; i < len; i++) {
       word = wordArray[i]
@@ -382,7 +365,7 @@ enceeper.crypto.prototype = {
   },
 
   _convertUint8ArrayToWordArray: function (u8Array) {
-    var words = []; var i = 0; var len = u8Array.length
+    const words = []; let i = 0; const len = u8Array.length
 
     while (i < len) {
       words.push(

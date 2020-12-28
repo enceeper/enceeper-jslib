@@ -1,6 +1,6 @@
 {
   "name": "enceeper-jslib",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "A reference library for building JS apps on top of the Enceeper service. Our own cross-platform Enceeper app is based on this library.",
   "keywords": [
     "enceeper",
@@ -30,15 +30,15 @@
   "author": "Vassilis Poursalidis",
   "license": "GPL-3.0-or-later",
   "dependencies": {
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.1",
     "jsrp": "git+https://github.com/poursal/jsrp.git",
     "sjcl": "git+https://github.com/poursal/sjcl.git",
-    "tweetnacl": "^1.0.1",
+    "tweetnacl": "^1.0.3",
     "unorm": "^1.6.0"
   },
   "devDependencies": {
-    "jest": "^24.9.0",
-    "standard": "^14.3.1"
+    "jest": "^26.6.3",
+    "standard": "^16.0.3"
   },
   "standard": {
     "env": {

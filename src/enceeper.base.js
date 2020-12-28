@@ -21,10 +21,10 @@
 
 'use strict'
 
-var enceeper = {
+const enceeper = {
 }
 
 enceeper._isHex = function (h) {
-  var re = /[0-9A-Fa-f]*/g
+  const re = /[0-9A-Fa-f]*/g
   return re.test(h)
 }
